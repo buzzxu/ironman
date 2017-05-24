@@ -23,6 +23,7 @@ type JWTConfig struct {
 type jwtExtractor func(echo.Context) (string, error)
 
 var DefaultJWTConfig = JWTConfig{
+	Claims:nil,
 	SigningMethod: jwt.SigningMethodHS256.Name,
 	ContextKey:    "user",
 	SigningKey:    []byte("ironman"),

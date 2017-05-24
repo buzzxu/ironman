@@ -10,7 +10,7 @@ import (
 
 type DbConfig struct {
 	Host            string
-	Port            string
+	Port            int16
 	User            string
 	Password        string
 	DBName          string
@@ -19,7 +19,10 @@ type DbConfig struct {
 	ConnMaxLifetime int
 }
 
-func CreateDB(dbConfig *DbConfig) (*gorm.DB, error) {
+func CreateDB(dbConfig *DbConfig) (*gorm.DB) {
+	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
+		return "t_" + defaultTableName
+	}
 	db, err := gorm.Open("mysql", fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
 		dbConfig.User,
@@ -28,9 +31,8 @@ func CreateDB(dbConfig *DbConfig) (*gorm.DB, error) {
 		dbConfig.Port,
 		dbConfig.DBName,
 	))
-	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return "t_" + defaultTableName
-	}
+
+
 	if err != nil {
 		log.Panic(fmt.Errorf("Failed to connect to log mysql: %s", err))
 	}
@@ -39,5 +41,5 @@ func CreateDB(dbConfig *DbConfig) (*gorm.DB, error) {
 	db.DB().SetConnMaxLifetime(time.Duration(dbConfig.ConnMaxLifetime) * time.Hour)
 	db.DB().Ping()
 	db.LogMode(true)
-	return db, err
+	return db
 }

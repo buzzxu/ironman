@@ -12,3 +12,10 @@ type (
 		Data    map[string]interface{} `json:"data"`
 	}
 )
+
+func ResultOf(code int,message string,data map[string]interface{}) Result  {
+	return Result{
+		Code:code,
+		Data:data,
+	}
+}
