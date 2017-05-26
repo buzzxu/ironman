@@ -1,8 +1,6 @@
 package ironman
 
 type (
-
-
 	User struct {
 		ID         int    `json:"id",gorm:"primary_key"`
 		UserName   string `json:"userName",gorm:"column:username"`
@@ -26,8 +24,8 @@ type (
 		UnionID string `json:"unionId"`
 		OpenID  string `json:"openId"`
 	}
+
+	Map map[string]interface{}
 )
 
 func (u UserWx) TableName() string { return "t_user_wx" }
-
-

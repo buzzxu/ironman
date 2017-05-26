@@ -1,21 +1,27 @@
 package ironman
 
+import "github.com/labstack/echo"
+
 type (
 	Error struct {
 		Code    int    `json:"code"`
 		Key     string `json:"error"`
-		Message string `json:"message"`
+		Message interface{} `json:"message"`
 	}
 	Result struct {
-		Code    int                    `json:"code"`
-		Message string                 `json:"message"`
-		Data    map[string]interface{} `json:"data"`
+		Code int         `json:"code"`
+		Data interface{} `json:"data"`
 	}
+
 )
 
-func ResultOf(code int,message string,data map[string]interface{}) Result  {
-	return Result{
-		Code:code,
-		Data:data,
+// JSON输出
+func JSON(c echo.Context, result *Result) error {
+	return c.JSON(result.Code, result)
+}
+func ResultOf(code int, data interface{}) *Result {
+	return &Result{
+		Code: code,
+		Data: data,
 	}
 }

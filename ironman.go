@@ -32,7 +32,7 @@ func Server(e *echo.Echo, port string) {
 	}
 }
 
-func newHTTPError(code int, key string, msg string) *Error {
+func NewError(code int, key string, msg interface{}) *Error {
 	return &Error{
 		Code:    code,
 		Key:     key,
@@ -44,7 +44,7 @@ func httpErrorHandler(err error, c echo.Context) {
 	var (
 		code = http.StatusInternalServerError
 		key  = "StatusInternalServerError"
-		msg  string
+		msg  interface{}
 	)
 
 	if e, ok := err.(*Error); ok {
@@ -54,8 +54,8 @@ func httpErrorHandler(err error, c echo.Context) {
 	} else if e, ok := err.(*echo.HTTPError); ok {
 		code = e.Code
 		key = http.StatusText(code)
-		msg = key
-	} else if c.Echo().Debug {
+		msg = e.Message
+	}else if c.Echo().Debug {
 		msg = err.Error()
 	} else {
 		key = http.StatusText(code)
@@ -69,7 +69,7 @@ func httpErrorHandler(err error, c echo.Context) {
 				c.Logger().Error(err)
 			}
 		} else {
-			err := c.JSON(code, newHTTPError(code, key, msg))
+			err := c.JSON(code, NewError(code, key, msg))
 			if err != nil {
 				c.Logger().Error(err)
 			}
@@ -78,5 +78,5 @@ func httpErrorHandler(err error, c echo.Context) {
 }
 
 func (e *Error) Error() string {
-	return e.Key + ": " + e.Message
+	return e.Key + ": " + e.Message.(string)
 }

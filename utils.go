@@ -21,14 +21,14 @@ func (optinal *Optional) IsPresent() bool {
 
 //生成密码
 func GeneratePassword(password string) string {
-	hashedPassword,err := bcrypt.GenerateFromPassword([]byte(password),bcrypt.DefaultCost)
+	hashedPassword,err := bcrypt.GenerateFromPassword([]byte(password),15)
 	if err != nil {
 		panic(err)
 	}
 	return string(hashedPassword)
 }
 //比较密码
-func ComparePasswordAndStr(password string,str string)bool  {
-	err := bcrypt.CompareHashAndPassword([]byte(str), []byte(password))
+func ComparePasswordAndStr(password ,hash string)bool  {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
