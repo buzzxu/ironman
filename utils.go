@@ -8,6 +8,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"time"
 	"errors"
+	"math/rand"
+	"crypto/md5"
+	"encoding/hex"
 )
 
 type Optional struct {
@@ -36,6 +39,31 @@ func GeneratePassword(password string) string {
 	return string(hashedPassword)
 }
 
+
+// 生成32位MD5
+func MD5(text string) string{
+	ctx := md5.New()
+	ctx.Write([]byte(text))
+	return hex.EncodeToString(ctx.Sum(nil))
+}
+
+
+var (
+	codes   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	codeLen = len(codes)
+)
+//生成随机字符串
+func GenRandomString(len int) string {
+	data := make([]byte, len)
+	rand.Seed(time.Now().UnixNano())
+
+	for i := 0; i < len; i++ {
+		idx := rand.Intn(codeLen)
+		data[i] = byte(codes[idx])
+	}
+
+	return string(data)
+}
 //比较密码
 func ComparePasswordAndStr(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))

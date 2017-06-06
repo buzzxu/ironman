@@ -43,14 +43,14 @@ type (
 var ServerConf = serverConf{}
 
 func init() {
-	loadConf()
+
 }
-func loadConf() {
+func LoadConf() {
 	currentDir, _ := os.Getwd()
 	yamlFile, err := ioutil.ReadFile(currentDir + "/conf.yaml")
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
-		os.Exit(-1)
+		return
 	}
 	err = yaml.Unmarshal(yamlFile, &ServerConf)
 	if err != nil {

@@ -16,8 +16,8 @@ type (
 		Country    string `json:"country"`
 		Email      string `json:"email"`
 		Mobile     string `json:"mobile"`
-		RegTime    string `json:"regTime"`
-		UpgradedAt int    `json:"upgradedAt",gorm:"column:upgraded_at"`
+		RegTime    int64  `json:"regTime"`
+		UpgradedAt int64  `json:"upgradedAt",gorm:"column:upgraded_at"`
 		CreatedAt  int64  `json:"createdAt",gorm:"column:created_at"`
 		UpdatedAt  int64  `json:"updatedAt",gorm:"column:updated_at"`
 	}

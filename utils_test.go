@@ -18,3 +18,8 @@ func TestStruct2Map(t *testing.T) {
 	wx := UserWx{1, "2323", "323"}
 	fmt.Println(Struct2Map(wx))
 }
+
+func TestGenerateRandomBytes(t *testing.T) {
+
+	fmt.Println(GetRandomString(8))
+}

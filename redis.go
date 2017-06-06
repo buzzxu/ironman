@@ -10,10 +10,10 @@ import (
 var Redis *redis.Client
 
 func init() {
-	redisClient()
+
 }
 
-func redisClient() {
+func RedisConnect() {
 	var password = ""
 	var poolSize = 10
 	if len(conf.ServerConf.Redis.Password) > 0 {

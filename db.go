@@ -25,7 +25,7 @@ type DbConfig struct {
 var Db *gorm.DB
 
 func init() {
-	InitDb()
+
 }
 func CreateDB(dbConfig *DbConfig) *gorm.DB {
 	db, err := gorm.Open("mysql", fmt.Sprintf(
@@ -49,7 +49,7 @@ func CreateDB(dbConfig *DbConfig) *gorm.DB {
 }
 
 //初始化数据库链接
-func InitDb() {
+func DataSourceConnect() {
 	dbConfig := &DbConfig{
 		Host:            conf.ServerConf.DataSource.Host,
 		Port:            conf.ServerConf.DataSource.Port,
