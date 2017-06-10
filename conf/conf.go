@@ -10,10 +10,10 @@ import (
 
 type (
 	serverConf struct {
-		Port       string     `yaml:"port"`
-		Jwt        jwtConf    `yaml:"jwt"`
-		DataSource dataSource `yaml:"dataSource"`
-		Redis      redisConf  `yaml:"redis"`
+		Port       string      `yaml:"port"`
+		Jwt        *jwtConf    `yaml:"jwt"`
+		DataSource *dataSource `yaml:"dataSource"`
+		Redis      *redisConf  `yaml:"redis"`
 	}
 
 	jwtConf struct {
