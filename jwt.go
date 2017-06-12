@@ -1,16 +1,18 @@
 package ironman
 
 import (
+	"fmt"
+	"reflect"
+	"strings"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"strings"
-	"reflect"
-	"fmt"
 )
 
+// JWTConfig JWT配置
 type JWTConfig struct {
-	Claims jwt.Claims
+	Claims        jwt.Claims
 	SigningMethod string
 	ContextKey    string
 	SigningKey    []byte
@@ -18,12 +20,12 @@ type JWTConfig struct {
 	AuthScheme    string
 	jwtExtractor
 	keyFunc jwt.Keyfunc
-
 }
 type jwtExtractor func(echo.Context) (string, error)
 
+// DefaultJWTConfig 默认JWT配置
 var DefaultJWTConfig = JWTConfig{
-	Claims:nil,
+	Claims:        nil,
 	SigningMethod: jwt.SigningMethodHS256.Name,
 	ContextKey:    "user",
 	SigningKey:    []byte("ironman"),
@@ -31,10 +33,10 @@ var DefaultJWTConfig = JWTConfig{
 	AuthScheme:    "Bearer",
 }
 
-//JWT 配置
+//JwtConfig 设置JWT 配置
 func JwtConfig(skiper middleware.Skipper) (jwtConfig middleware.JWTConfig) {
 	jwtConfig = middleware.JWTConfig{
-		Skipper:skiper,
+		Skipper:       skiper,
 		Claims:        DefaultJWTConfig.Claims,
 		SigningMethod: DefaultJWTConfig.SigningMethod,
 		ContextKey:    DefaultJWTConfig.ContextKey,
@@ -61,7 +63,7 @@ func JwtConfig(skiper middleware.Skipper) (jwtConfig middleware.JWTConfig) {
 	return jwtConfig
 }
 
-//生成token
+//GenerateToken 生成token
 func GenerateToken(claims jwt.Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.GetSigningMethod(DefaultJWTConfig.SigningMethod), claims)
 	t, error := token.SignedString(DefaultJWTConfig.SigningKey)
@@ -71,8 +73,8 @@ func GenerateToken(claims jwt.Claims) (string, error) {
 	return t, nil
 }
 
-//解析token
-func ParserToken(c echo.Context) *Optional{
+//ParserToken 解析token
+func ParserToken(c echo.Context) *Optional {
 	auth, err := DefaultJWTConfig.jwtExtractor(c)
 	if len(auth) == 0 {
 		return OptionalOfNil()
@@ -85,10 +87,6 @@ func ParserToken(c echo.Context) *Optional{
 	}
 	return OptionalOfNil()
 }
-
-
-
-
 
 // jwtFromHeader returns a `jwtExtractor` that extracts token from the request header.
 func jwtFromHeader(header string, authScheme string) jwtExtractor {

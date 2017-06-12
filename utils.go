@@ -5,32 +5,41 @@ import (
 	"reflect"
 	"strconv"
 
-	"golang.org/x/crypto/bcrypt"
-	"time"
-	"errors"
-	"math/rand"
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
+	"math/rand"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
+// Optional 可选结构
 type Optional struct {
 	val interface{}
 }
 
+// OptionalOf 构造Optional
 func OptionalOf(val interface{}) *Optional {
 	return &Optional{val: val}
 }
+
+// OptionalOfNil 设置nil Optinal
 func OptionalOfNil() *Optional {
 	return OptionalOf(nil)
 }
+
+// Get 获取Optinal值
 func (optinal *Optional) Get() interface{} {
 	return optinal.val
 }
+
+// IsPresent Optional值是否nil
 func (optinal *Optional) IsPresent() bool {
 	return optinal.val != nil
 }
 
-//生成密码
+//GeneratePassword 生成密码
 func GeneratePassword(password string) string {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 15)
 	if err != nil {
@@ -39,20 +48,19 @@ func GeneratePassword(password string) string {
 	return string(hashedPassword)
 }
 
-
-// 生成32位MD5
-func MD5(text string) string{
+// MD5 生成32位MD5
+func MD5(text string) string {
 	ctx := md5.New()
 	ctx.Write([]byte(text))
 	return hex.EncodeToString(ctx.Sum(nil))
 }
 
-
 var (
 	codes   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 	codeLen = len(codes)
 )
-//生成随机字符串
+
+//GenRandomString 生成随机字符串
 func GenRandomString(len int) string {
 	data := make([]byte, len)
 	rand.Seed(time.Now().UnixNano())
@@ -64,13 +72,14 @@ func GenRandomString(len int) string {
 
 	return string(data)
 }
-//比较密码
+
+//ComparePasswordAndStr 比较密码
 func ComparePasswordAndStr(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
-// struct 转Map
+// Struct2Map struct 转Map
 func Struct2Map(obj interface{}) map[string]interface{} {
 	t := reflect.TypeOf(obj)
 	v := reflect.ValueOf(obj)
@@ -87,8 +96,7 @@ func Struct2Map(obj interface{}) map[string]interface{} {
 	return data
 }
 
-
-//map转Struct
+//Map2Struct map转Struct
 func Map2Struct(data map[string]interface{}, obj interface{}) error {
 	for k, v := range data {
 		err := SetField(obj, k, v)
@@ -98,7 +106,8 @@ func Map2Struct(data map[string]interface{}, obj interface{}) error {
 	}
 	return nil
 }
-//用map的值替换结构的值
+
+//SetField 用map的值替换结构的值
 func SetField(obj interface{}, name string, value interface{}) error {
 	structValue := reflect.ValueOf(obj).Elem()        //结构体属性值
 	structFieldValue := structValue.FieldByName(name) //结构体单个属性值
@@ -120,7 +129,8 @@ func SetField(obj interface{}, name string, value interface{}) error {
 	structFieldValue.Set(val)
 	return nil
 }
-//类型转换
+
+//TypeConversion 类型转换
 func TypeConversion(value string, ntype string) (reflect.Value, error) {
 	if ntype == "string" {
 		return reflect.ValueOf(value), nil

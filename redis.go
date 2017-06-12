@@ -7,12 +7,14 @@ import (
 	"github.com/go-redis/redis"
 )
 
+// Redis 客户端
 var Redis *redis.Client
 
 func init() {
 
 }
 
+// RedisConnect Redis连接
 func RedisConnect() {
 	var password = ""
 	var poolSize = 10

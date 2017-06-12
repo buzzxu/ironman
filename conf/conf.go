@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -17,10 +18,11 @@ type (
 	}
 
 	jwtConf struct {
-		ContextKey    string `yaml:"contextKey"`
-		SigningKey    string `yaml:"signingKey"`
-		AuthScheme    string `yaml:"authScheme"`
-		SigningMethod string `yaml:"signingMethod"`
+		ContextKey    string        `yaml:"contextKey"`
+		SigningKey    string        `yaml:"signingKey"`
+		AuthScheme    string        `yaml:"authScheme"`
+		SigningMethod string        `yaml:"signingMethod"`
+		Expires       time.Duration `yaml:"expires"`
 	}
 	redisConf struct {
 		Addr     string `yaml:"addr"`

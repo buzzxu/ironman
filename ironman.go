@@ -6,13 +6,12 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
-/**
-启动服务
-*/
+// Server 启动服务
 func Server(e *echo.Echo, port string) {
 	e.Use(middleware.Secure())
 	e.HTTPErrorHandler = httpErrorHandler
@@ -32,6 +31,7 @@ func Server(e *echo.Echo, port string) {
 	}
 }
 
+// NewError 异常
 func NewError(code int, key string, msg interface{}) *Error {
 	return &Error{
 		Code:    code,
@@ -55,7 +55,7 @@ func httpErrorHandler(err error, c echo.Context) {
 		code = e.Code
 		key = http.StatusText(code)
 		msg = e.Message
-	}else if c.Echo().Debug {
+	} else if c.Echo().Debug {
 		msg = err.Error()
 	} else {
 		key = http.StatusText(code)
