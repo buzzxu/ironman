@@ -59,7 +59,7 @@ func DataSourceConnect() {
 		Port:            conf.ServerConf.DataSource.Port,
 		User:            conf.ServerConf.DataSource.User,
 		Password:        conf.ServerConf.DataSource.Password,
-		DBName:          conf.ServerConf.DataSource.DbName,
+		DBName:          conf.ServerConf.DataSource.DB,
 		MaxIdleConns:    conf.ServerConf.DataSource.MaxIdleConns,
 		MaxOpenConns:    conf.ServerConf.DataSource.MaxOpenConns,
 		ConnMaxLifetime: conf.ServerConf.DataSource.ConnMaxLifetime,

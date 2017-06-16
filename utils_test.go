@@ -21,5 +21,5 @@ func TestStruct2Map(t *testing.T) {
 
 func TestGenerateRandomBytes(t *testing.T) {
 
-	fmt.Println(GetRandomString(8))
+	fmt.Println(GenRandomString(8))
 }
