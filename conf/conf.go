@@ -42,6 +42,7 @@ type (
 		MaxIdleConns    int    `yaml:"maxIdleConns"`
 		MaxOpenConns    int    `yaml:"maxOpenConns"`
 		ConnMaxLifetime int    `yaml:"connMaxLifetime"`
+		Log             bool   `yaml:"log"`
 	}
 	mongoDb struct {
 		Url      string `yaml:"url"`
