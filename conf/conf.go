@@ -46,9 +46,11 @@ type (
 	}
 	mongoDb struct {
 		Url      string `yaml:"url"`
-		DB       string `yaml:"db"`
+		Database       string `yaml:"db"`
 		User     string `yaml:"user"`
 		Password string `yaml:"password"`
+		Timeout int `yaml:"timeout"`
+		PoolLimit int `yaml:"poolLimit"`
 	}
 )
 

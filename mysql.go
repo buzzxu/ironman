@@ -34,7 +34,7 @@ func init() {
 func CreateDB() *gorm.DB {
 	dbConfig := conf.ServerConf.DataSource
 	db, err := gorm.Open("mysql", fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
+		"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4,utf8&parseTime=True&loc=Local",
 		dbConfig.User,
 		dbConfig.Password,
 		dbConfig.Host,
