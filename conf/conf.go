@@ -14,6 +14,7 @@ type (
 	serverConf struct {
 		MaxProc    int         `yaml:"maxProc"`
 		Port       string      `yaml:"port"`
+		Log	string `yaml:"log"`
 		Jwt        *jwtConf    `yaml:"jwt"`
 		DataSource *dataSource `yaml:"dataSource"`
 		Redis      *redisConf  `yaml:"redis"`
@@ -74,5 +75,8 @@ func LoadConf() {
 	// 设置go processor数量
 	if ServerConf.MaxProc == 0 {
 		ServerConf.MaxProc = runtime.NumCPU()
+	}
+	if len(ServerConf.Log) ==0{
+		ServerConf.Log = "server.log"
 	}
 }
