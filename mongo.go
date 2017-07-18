@@ -1,15 +1,10 @@
 package ironman
 
 import (
+	"fmt"
 	"github.com/buzzxu/ironman/conf"
 	"gopkg.in/mgo.v2"
-	"fmt"
 )
-
-
-
-
-
 
 //MongoSession
 var MongoSession *mgo.Session
@@ -19,7 +14,7 @@ func MongoDbConnect() {
 	MongoSession = createMongoDbSession()
 }
 
-func createMongoDbSession()*mgo.Session  {
+func createMongoDbSession() *mgo.Session {
 	conf := conf.ServerConf.MongoDb
 	session, err := mgo.Dial(conf.Url)
 	if err != nil {
@@ -30,7 +25,7 @@ func createMongoDbSession()*mgo.Session  {
 	credential := mgo.Credential{
 		Username: conf.User,
 		Password: conf.Password,
-		Source:conf.Database,
+		Source:   conf.Database,
 	}
 	if err := session.Login(&credential); err != nil {
 		fmt.Print(err)
