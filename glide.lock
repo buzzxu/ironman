@@ -1,11 +1,13 @@
-hash: 6d6455e35532c220eed0e9bda6e53be98de99b43848ed00f270f679257562bc9
-updated: 2017-07-23T13:55:43.190816449+08:00
+hash: 6f1d68ae8c7419145531808884e33834ac65e4f13a54cc1eee3b680f340b8a94
+updated: 2017-07-23T20:55:44.392312143+08:00
 imports:
 - name: github.com/boombuler/barcode
   version: 56ef0af91246fb5279df4f87bc3daf1bf7cb9e89
   subpackages:
   - qr
   - utils
+- name: github.com/buzzxu/go-qrcode
+  version: 0173ba53c8b65e7e3746832aeaf53bf954dc0f62
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 - name: github.com/go-redis/redis
@@ -39,6 +41,11 @@ imports:
   version: 3fa8c76f9daed4067e4a806fb7e4dc86455c6d6a
 - name: github.com/mattn/go-isatty
   version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+- name: github.com/skip2/go-qrcode
+  version: 0bb60b5a716144fa55da373bab578cca49a537d7
+  subpackages:
+  - bitset
+  - reedsolomon
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
@@ -50,10 +57,8 @@ imports:
   - acme/autocert
   - bcrypt
   - blowfish
-- name: golang.org/x/sys
+- name: golang.org/x/sys/unix
   version: c4489faa6e5ab84c0ef40d6ee878f7a030281f0f
-  subpackages:
-  - unix
 - name: gopkg.in/mgo.v2
   version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
   subpackages:

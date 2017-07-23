@@ -17,6 +17,10 @@ import:
   version: ~3.2.1
   subpackages:
   - middleware
-- package: golang.org/x/crypto/bcrypt
+- package: golang.org/x/crypto
+  subpackages:
+  - bcrypt
 - package: gopkg.in/mgo.v2
 - package: gopkg.in/yaml.v2
+- package: github.com/buzzxu/go-qrcode
+- package: github.com/skip2/go-qrcode
