@@ -7,41 +7,45 @@ import (
 	"bytes"
 	"encoding/base64"
 	"text/template"
-	"github.com/labstack/echo"
 	"strconv"
+	"net/http"
 )
 var ImageTemplate string = `<!DOCTYPE html>
 <html lang="en"><head></head>
 <body><img src="data:image/jpg;base64,{{.Image}}"></body>`
 
 //HTML 生成HTML片段
-func HTML(c echo.Context,content string,width, height int)  {
+func HTML(w http.ResponseWriter,content string,width, height int) error  {
 	val,err := String(content,width,height)
 	if err != nil {
-		c.Logger().Error(err)
+		return err
 	}
-
 	if tmpl, err := template.New("image").Parse(ImageTemplate); err != nil {
-		c.Logger().Error("unable to parse image template.")
+		return err
 	} else {
 		data := map[string]interface{}{"Image": val}
-		if err = tmpl.Execute(c.Response().Writer, data); err != nil {
-			c.Logger().Error("unable to execute template.")
+		if err = tmpl.Execute(w, data); err != nil {
+			return err
 		}
+		return nil
 	}
 }
 //Image 直接生成图片
-func Image(c echo.Context,content string,width, height int)  {
+func Image(w http.ResponseWriter,content string,width, height int) error {
 	qrcode,err := QrCode(content,width,height)
 	if err != nil {
-		c.Logger().Error(err)
+		return err
 	}
 	buffer := new(bytes.Buffer)
 	if err := png.Encode(buffer, qrcode); err != nil {
-		c.Logger().Error("unable to encode image.")
+		return err
 	}
-	c.Response().Header().Set("Content-Length", strconv.Itoa(len(buffer.Bytes())))
-	c.Blob(200,"image/png",buffer.Bytes())
+	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Content-Length", strconv.Itoa(len(buffer.Bytes())))
+	if _, err := w.Write(buffer.Bytes()); err != nil {
+		return err
+	}
+	return nil
 
 }
 //String 生成Base64
