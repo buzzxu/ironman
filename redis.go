@@ -10,8 +10,6 @@ import (
 // Redis 客户端
 var Redis *redis.Client
 
-
-
 // RedisConnect Redis连接
 func RedisConnect() {
 	var password = ""

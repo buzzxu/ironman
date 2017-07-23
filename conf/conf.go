@@ -12,13 +12,14 @@ import (
 
 type (
 	serverConf struct {
-		MaxProc    int         `yaml:"maxProc"`
-		Port       string      `yaml:"port"`
-		Log	string `yaml:"log"`
-		Jwt        *jwtConf    `yaml:"jwt"`
-		DataSource *dataSource `yaml:"dataSource"`
-		Redis      *redisConf  `yaml:"redis"`
-		MongoDb    *mongoDb    `yaml:"mongo"`
+		MaxProc    int                    `yaml:"maxProc"`
+		Port       string                 `yaml:"port"`
+		Log        string                 `yaml:"log"`
+		Props      map[string]interface{} `yaml:"props"`
+		Jwt        *jwtConf               `yaml:"jwt"`
+		DataSource *dataSource            `yaml:"dataSource"`
+		Redis      *redisConf             `yaml:"redis"`
+		MongoDb    *mongoDb               `yaml:"mongo"`
 	}
 
 	jwtConf struct {
@@ -46,12 +47,12 @@ type (
 		Log             bool   `yaml:"log"`
 	}
 	mongoDb struct {
-		Url      string `yaml:"url"`
-		Database       string `yaml:"db"`
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-		Timeout int `yaml:"timeout"`
-		PoolLimit int `yaml:"poolLimit"`
+		Url       string `yaml:"url"`
+		Database  string `yaml:"db"`
+		User      string `yaml:"user"`
+		Password  string `yaml:"password"`
+		Timeout   int    `yaml:"timeout"`
+		PoolLimit int    `yaml:"poolLimit"`
 	}
 )
 
@@ -76,7 +77,7 @@ func LoadConf() {
 	if ServerConf.MaxProc == 0 {
 		ServerConf.MaxProc = runtime.NumCPU()
 	}
-	if len(ServerConf.Log) ==0{
+	if len(ServerConf.Log) == 0 {
 		ServerConf.Log = "server.log"
 	}
 }
