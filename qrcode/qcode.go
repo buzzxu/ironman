@@ -1,10 +1,6 @@
 package qrcode
 
 import (
-	"github.com/boombuler/barcode"
-	"github.com/boombuler/barcode/qr"
-	"image/png"
-	"bytes"
 	"encoding/base64"
 	"text/template"
 	"strconv"
@@ -15,8 +11,8 @@ var ImageTemplate string = `<!DOCTYPE html>
 <body><img src="data:image/jpg;base64,{{.Image}}"></body>`
 
 //HTML 生成HTML片段
-func HTML(w http.ResponseWriter,content string,width, height int) error  {
-	val,err := String(content,width,height)
+func HTML(w http.ResponseWriter,param *QRParam) error  {
+	val,err := String(param)
 	if err != nil {
 		return err
 	}
@@ -31,44 +27,27 @@ func HTML(w http.ResponseWriter,content string,width, height int) error  {
 	}
 }
 //Image 直接生成图片
-func Image(w http.ResponseWriter,content string,width, height int) error {
-	qrcode,err := QrCode(content,width,height)
+func Image(w http.ResponseWriter,param *QRParam) error {
+	bytes,err := QrCode(param)
 	if err != nil {
 		return err
 	}
-	buffer := new(bytes.Buffer)
-	if err := png.Encode(buffer, qrcode); err != nil {
-		return err
-	}
 	w.Header().Set("Content-Type", "image/png")
-	w.Header().Set("Content-Length", strconv.Itoa(len(buffer.Bytes())))
-	if _, err := w.Write(buffer.Bytes()); err != nil {
+	w.Header().Set("Content-Length", strconv.Itoa(len(bytes)))
+	if _, err := w.Write(bytes); err != nil {
 		return err
 	}
 	return nil
 
 }
 //String 生成Base64
-func String(content string,width, height int)(string,error)  {
-	qrCode,err:=QrCode(content,width,height)
+func String(param *QRParam)(string,error)  {
+	bytes,err:=QrCode(param)
 	if err != nil {
 		return "",err
 	}
-	buffer := bytes.NewBuffer(nil)
-	png.Encode(buffer,qrCode)
-	return base64.StdEncoding.EncodeToString(buffer.Bytes()),nil
+	return base64.StdEncoding.EncodeToString(bytes),nil
 }
 
-//qrcode 生成二维码
-func QrCode(content string,width, height int)(barcode.Barcode,error)  {
-	qrCode, err := qr.Encode(content, qr.H, qr.Auto)
-	if err!= nil {
-		return nil,err
-	}
-	qrCode, err = barcode.Scale(qrCode, width, height)
-	if err!= nil {
-		return nil,err
-	}
-	return qrCode,err
-}
+
 

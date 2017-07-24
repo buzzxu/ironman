@@ -2,12 +2,23 @@ package qrcode
 
 import (
 	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"net/http"
 	"github.com/buzzxu/go-qrcode"
 	"strconv"
 	"image/color"
 )
 
+type QRParam struct {
+	Content string
+	Size int
+	BgMaxSize int
+	BgColor string
+	ForeColor string
+	Logo string
+	BgImg string
+}
 type QRArg struct {
 	Content   string
 	size      int
@@ -19,98 +30,96 @@ type QRArg struct {
 	bdmaxsize int
 }
 
-type Values interface {
-	Param(string) string
-}
 
-func (q *QRArg) Parse(query Values) {
-	q.Content = query.Param("content")
-	q.size = q.parseSize(query.Param("size"))
-	q.bgcolor = q.parseBGColor(query.Param("bgcolor"))
-	q.forecolor = q.parseForeColor(query.Param("forecolor"))
-	q.logo = q.parseLogo(query.Param("logo"))
-	q.bgimg = q.parseBGImg(query.Param("bgimg"))
-	q.bdmaxsize = q.parseBdmaxsize(query.Param("bdmaxsize"))
-	if q.logo == nil {
-		q.level = qrcode.Highest
+//parse 解析参数
+func  parse(param *QRParam) *QRArg {
+	arg := &QRArg{}
+	arg.Content = param.Content
+	arg.parseSize(param.Size)
+	arg.parseBdmaxsize(param.BgMaxSize)
+	arg.parseBGColor(param.BgColor)
+	arg.parseForeColor(param.ForeColor)
+	arg.parseLogo(param.Logo)
+	arg.parseBGImg(param.BgImg)
+	if arg.logo == nil {
+		arg.level = qrcode.Highest
 	}else{
-		q.level = qrcode.Medium
+		arg.level = qrcode.Medium
 	}
 
-	if q.bgimg != nil {
-		if q.bgimg.Bounds().Max.X > q.bgimg.Bounds().Max.Y {
-			q.size = q.bgimg.Bounds().Max.Y
+	if arg.bgimg != nil {
+		if arg.bgimg.Bounds().Max.X > arg.bgimg.Bounds().Max.Y {
+			arg.size = arg.bgimg.Bounds().Max.Y
 		} else {
-			q.size = q.bgimg.Bounds().Max.X
+			arg.size = arg.bgimg.Bounds().Max.X
 		}
 		//		q.level = qrcode.Highest
 	}
+	return arg
 }
 
-func (q *QRArg) parseSize(str string) int {
-	var size int
-	if str != "" {
-		s, err := strconv.Atoi(str)
-		if err != nil {
-			size = 256
-		}else {
-			size = s
-		}
+func (q *QRArg) parseSize(size int)  {
+
+	if size != 0 {
+		q.size = size
 	}else{
-		size = 256
+		q.size = 256
 	}
-	return size
 }
 
-func (q *QRArg) parseBdmaxsize(str string) int {
-	size := -1
-	if str != "" {
-		s, err := strconv.Atoi(str)
-		if err != nil {
-			size = -1
-		}
-		size = s
+func (q *QRArg) parseBdmaxsize(size int)  {
+
+	if size != 0 {
+
+		q.bdmaxsize = size
+	}else{
+		q.bdmaxsize = -1
 	}
-	return size
 }
 
-func (q *QRArg) parseBGColor(str string) color.Color {
+func (q *QRArg) parseBGColor(str string)  {
 	s, err := strconv.ParseUint(str, 16, 32)
 	if err != nil {
-		return color.White
+		q.bgcolor = color.White
+	}else{
+		q.bgcolor = color.RGBA{R: uint8(s & 0xff0000 >> 16),
+			G: uint8(s & 0xff00 >> 8),
+			B: uint8(s & 0xff),
+			A: uint8(0xff)}
 	}
-	return color.RGBA{R: uint8(s & 0xff0000 >> 16),
-		G: uint8(s & 0xff00 >> 8),
-		B: uint8(s & 0xff),
-		A: uint8(0xff)}
+
 }
 
-func (q *QRArg) parseForeColor(str string) color.Color {
+func (q *QRArg) parseForeColor(str string)  {
 	s, err := strconv.ParseUint(str, 16, 32)
 	if err != nil {
-		return color.Black
+		q.forecolor =  color.Black
+	}else{
+		q.forecolor = color.RGBA{R: uint8(s & 0xff0000 >> 16),
+			G: uint8(s & 0xff00 >> 8),
+			B: uint8(s & 0xff),
+			A: uint8(uint8(0xff))}
 	}
-	return color.RGBA{R: uint8(s & 0xff0000 >> 16),
-		G: uint8(s & 0xff00 >> 8),
-		B: uint8(s & 0xff),
-		A: uint8(uint8(0xff))}
+
 }
 
-func (q *QRArg) parseLogo(str string) image.Image {
+func (q *QRArg) parseLogo(str string) {
 	if len(str) == 0 {
-		return nil
+		q.logo = nil
+	}else{
+		q.logo = downImg(str)
 	}
-	return q.downImg(str)
 }
 
-func (q *QRArg) parseBGImg(str string) image.Image {
+func (q *QRArg) parseBGImg(str string)  {
 	if len(str) == 0 {
-		return nil
+		q.bgimg = nil
+	}else{
+		q.bgimg = downImg(str)
 	}
-	return q.downImg(str)
 }
 
-func (q *QRArg) downImg(str string) image.Image {
+func  downImg(str string) image.Image {
 	resp, err := http.Get(str)
 	if err != nil {
 		return nil

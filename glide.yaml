@@ -23,4 +23,4 @@ import:
 - package: gopkg.in/mgo.v2
 - package: gopkg.in/yaml.v2
 - package: github.com/buzzxu/go-qrcode
-- package: github.com/skip2/go-qrcode
+- package: github.com/lucasb-eyer/go-colorful

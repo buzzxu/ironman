@@ -1,5 +1,5 @@
-hash: 6f1d68ae8c7419145531808884e33834ac65e4f13a54cc1eee3b680f340b8a94
-updated: 2017-07-23T20:55:44.392312143+08:00
+hash: fe974acb14636ff911b81c86c6dda2b9dfe84df4e3ce51009f9e4c3f5dd2de50
+updated: 2017-07-24T22:10:16.878454512+08:00
 imports:
 - name: github.com/boombuler/barcode
   version: 56ef0af91246fb5279df4f87bc3daf1bf7cb9e89
@@ -7,7 +7,10 @@ imports:
   - qr
   - utils
 - name: github.com/buzzxu/go-qrcode
-  version: 0173ba53c8b65e7e3746832aeaf53bf954dc0f62
+  version: 992feec5214bf00d888bf6f41db5eeaa1aaa2c2a
+  subpackages:
+  - bitset
+  - reedsolomon
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 - name: github.com/go-redis/redis
@@ -37,15 +40,12 @@ imports:
   - color
   - log
   - random
+- name: github.com/lucasb-eyer/go-colorful
+  version: d1be5f1fbc7f63e693f460df83d52772eae2ca54
 - name: github.com/mattn/go-colorable
   version: 3fa8c76f9daed4067e4a806fb7e4dc86455c6d6a
 - name: github.com/mattn/go-isatty
   version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
-- name: github.com/skip2/go-qrcode
-  version: 0bb60b5a716144fa55da373bab578cca49a537d7
-  subpackages:
-  - bitset
-  - reedsolomon
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
