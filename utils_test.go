@@ -15,7 +15,7 @@ func TestComparePasswordAndStr(t *testing.T) {
 }
 
 func TestStruct2Map(t *testing.T) {
-	wx := UserWx{1, "2323", "323"}
+	wx := UserWechat{1, "2323", "323", 12233, 2323}
 	fmt.Println(Struct2Map(wx))
 }
 
