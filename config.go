@@ -1,6 +1,6 @@
 package ironman
 
-import "github.com/labstack/echo"
+import "github.com/labstack/echo/v4"
 
 type (
 	// Error 异常结构
