@@ -31,7 +31,7 @@ func init() {
 }
 
 // CreateDB 创建数据库链接
-func CreateDB() *gorm.DB {
+func CreateDB(callback func(db *gorm.DB)) *gorm.DB {
 	dbConfig := conf.ServerConf.DataSource
 	db, err := gorm.Open("mysql", fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4,utf8&parseTime=True&loc=Local",
@@ -48,12 +48,17 @@ func CreateDB() *gorm.DB {
 	db.DB().SetMaxIdleConns(dbConfig.MaxIdleConns)
 	db.DB().SetMaxOpenConns(dbConfig.MaxOpenConns)
 	db.DB().SetConnMaxLifetime(time.Duration(dbConfig.ConnMaxLifetime) * time.Hour)
+	callback(db)
 	db.DB().Ping()
 	db.LogMode(dbConfig.Log)
 	return db
 }
 
 //DataSourceConnect 初始化数据库链接
-func DataSourceConnect() {
-	Db = CreateDB()
+func DataSourceConnect(callback func(db *gorm.DB)) {
+	Db = CreateDB(callback)
+}
+
+func DataSourceClose() {
+	Db.Close()
 }
