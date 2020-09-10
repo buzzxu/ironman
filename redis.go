@@ -33,3 +33,9 @@ func RedisConnect() {
 		fmt.Printf("Redis未配置,无需连接")
 	}
 }
+
+func RedisClose() {
+	if Redis != nil {
+		Redis.Close()
+	}
+}
