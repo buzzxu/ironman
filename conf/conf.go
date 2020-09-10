@@ -64,9 +64,13 @@ var ServerConf = &serverConf{}
 func init() {
 
 }
-func LoadConf() {
+func LoadDefaultConf() {
 	currentDir, _ := os.Getwd()
-	yamlFile, err := ioutil.ReadFile(currentDir + "/conf.yaml")
+	LoadConf(currentDir + "/conf.yaml")
+}
+
+func LoadConf(conf string) {
+	yamlFile, err := ioutil.ReadFile(conf)
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
 		return
