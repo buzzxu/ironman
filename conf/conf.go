@@ -30,10 +30,13 @@ type (
 		Expires       time.Duration `yaml:"expires"`
 	}
 	redisConf struct {
-		Addr     string `yaml:"addr"`
-		Password string `yaml:"password"`
-		DB       int    `yaml:"db"`
-		PoolSize int    `yaml:"poolSize"`
+		Addr         string `yaml:"addr"`
+		Password     string `yaml:"password"`
+		DB           int    `yaml:"db"`
+		PoolSize     int    `yaml:"poolSize"`
+		MaxRetries   int    `yaml:"maxRetries"`
+		MinIdleConns int    `yaml:"minIdle"`
+		Stats        bool   `yaml:"stats"`
 	}
 	dataSource struct {
 		Host            string `yaml:"host"`
