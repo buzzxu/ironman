@@ -12,7 +12,7 @@ var Redis *redis.Client
 
 // RedisConnect Redis连接
 func RedisConnect() {
-	if conf.ServerConf.Redis.Addr != "" {
+	if conf.ServerConf.Redis != nil && conf.ServerConf.Redis.Addr != "" {
 		var password = ""
 		var poolSize = conf.ServerConf.MaxProc * 5
 		if len(conf.ServerConf.Redis.Password) > 0 && conf.ServerConf.Redis.Password != "none" {
