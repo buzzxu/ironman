@@ -1,0 +1,16 @@
+mongo:
+  url: 127.0.0.1:27017
+  db: xca
+  user: xux
+  password: xux
+  timeout: 60
+  poolLimit: 4096
+logger:
+  maxSize: 50
+  maxBackups: 30
+  maxAge: 30
+  console: true
+  json: true
+  loggers:
+    order:
+      file: b.log

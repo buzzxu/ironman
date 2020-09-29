@@ -2,6 +2,10 @@ package ironman
 
 import (
 	"context"
+	"fmt"
+	"github.com/buzzxu/ironman/conf"
+	"github.com/buzzxu/ironman/echomw"
+	"github.com/buzzxu/ironman/logger"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,13 +16,22 @@ import (
 )
 
 // Server 启动服务
-func Server(e *echo.Echo, port string) {
+func Server(e *echo.Echo) {
+	//初始化日志
+	logger.InitLogger()
+	e.Use(echomw.ZapLogger(logger.X().Unwrap()))
+	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Secure())
+	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
+		DisablePrintStack: true,
+		DisableStackAll:   true,
+		StackSize:         4 << 10,
+	}))
 	e.HTTPErrorHandler = httpErrorHandler
 	//平滑关闭
 	go func() {
-		if err := e.Start(port); err != nil {
-			e.Logger.Info("shutting down the server")
+		if err := e.Start(fmt.Sprintf(":%s", conf.ServerConf.Port)); err != nil {
+			e.Logger.Fatalf("Start Server error! %v", e)
 		}
 	}()
 	quit := make(chan os.Signal)
