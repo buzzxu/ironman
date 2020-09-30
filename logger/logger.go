@@ -32,8 +32,8 @@ func InitLogger() {
 }
 
 //New
-func New(name, level string, json, console bool) (*CompatibleLogger, error) {
-	return NewLogger(name, name+".log", level, json, console, false)
+func New(name, level string, json, console, caller bool) (*CompatibleLogger, error) {
+	return NewLogger(name, name+".log", level, json, console, caller)
 }
 
 //NewLogger
