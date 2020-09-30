@@ -8,9 +8,9 @@ import (
 )
 
 func TestMongoDbConnectTest(t *testing.T) {
-	conf.LoadConf()
+	conf.LoadDefaultConf()
 	conf := conf.ServerConf.MongoDb
-	fmt.Print("%v", &conf)
+	fmt.Printf("%v", &conf)
 
 	MongoDbConnect()
 

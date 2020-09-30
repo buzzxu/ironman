@@ -116,7 +116,9 @@ func LoadConf(conf string) {
 	if ServerConf.MaxProc == 0 {
 		ServerConf.MaxProc = runtime.NumCPU()
 	}
-
+	if ServerConf.Port == "" {
+		ServerConf.Port = "3000"
+	}
 	currentDir, _ := os.Getwd()
 	ServerConf.WorkDir = currentDir
 	//默认日志配置
@@ -126,8 +128,8 @@ func LoadConf(conf string) {
 			MaxAge:     30,
 			MaxBackups: 30,
 			Compress:   true,
-			Json:       false,
-			Console:    false,
+			Json:       true,
+			Console:    true,
 			Line:       true,
 			Dir:        currentDir,
 		}

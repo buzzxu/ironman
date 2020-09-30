@@ -39,7 +39,7 @@ func New(name, level string, json, console, caller bool) (*CompatibleLogger, err
 //NewLogger
 func NewLogger(name, file, level string, json, console, caller bool) (*CompatibleLogger, error) {
 	if name == "" {
-		return nil, errors.New("name is nil")
+		return nil, errors.New("name is empty")
 	}
 	if level == "" {
 		level = "info"
@@ -98,6 +98,9 @@ func Debugf(format string, args ...interface{}) {
 func Fatal(args ...interface{}) {
 	logger.Fatal(args...)
 }
+func Fatale(msg string, err error) {
+	logger.Fatale(msg, err)
+}
 func Fatalf(format string, args ...interface{}) {
 	logger.Fatalf(format, args...)
 }
@@ -121,16 +124,16 @@ func lumberJack(file string) (hook *lumberjack.Logger) {
 
 //newCompatibleLogger
 func newCompatibleLogger(name string, logConf *conf.LogConf) *CompatibleLogger {
-	var console, json bool
-	if logConf.Console {
-		console = logConf.Console
-	} else {
+	var (
 		console = conf.ServerConf.Logger.Console
+		json    = conf.ServerConf.Logger.Json
+	)
+	if console != logConf.Console {
+		console = logConf.Console
 	}
-	if logConf.Json {
+
+	if json != logConf.Json {
 		json = logConf.Json
-	} else {
-		json = conf.ServerConf.Logger.Json
 	}
 	l, err := NewLogger(name, logConf.File, logConf.Level, json, console, true)
 	if err != nil {

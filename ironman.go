@@ -21,7 +21,7 @@ func Server(e *echo.Echo) {
 	logger.InitLogger()
 	log, err := logger.New("access", "info", true, true, false)
 	if err != nil {
-		log.Fatalf("logger[%s] 创建失败: %v", "access", err)
+		logger.Fatalf("logger[%s] 创建失败: %v", "access", err)
 	}
 
 	e.Use(echomw.ZapLogger(log.Unwrap()))
@@ -36,7 +36,7 @@ func Server(e *echo.Echo) {
 	//平滑关闭
 	go func() {
 		if err := e.Start(fmt.Sprintf(":%s", conf.ServerConf.Port)); err != nil {
-			e.Logger.Fatalf("Start Server error! %v", e)
+			logger.Error(err.Error())
 		}
 	}()
 	quit := make(chan os.Signal)
@@ -45,7 +45,7 @@ func Server(e *echo.Echo) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
+		logger.Fatale("Shutdown error", err)
 	}
 }
 

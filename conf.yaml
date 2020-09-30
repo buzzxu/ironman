@@ -1,7 +1,0 @@
-mongo:
-  url: 127.0.0.1:27017
-  db: xca
-  user: xux
-  password: xux
-  timeout: 60
-  poolLimit: 4096

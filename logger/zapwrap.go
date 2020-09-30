@@ -75,6 +75,10 @@ func (l CompatibleLogger) Fatal(args ...interface{}) {
 	l._log.Fatal(fmt.Sprint(args...))
 }
 
+func (l CompatibleLogger) Fatale(msg string, err error) {
+	l._log.Fatal(msg, zap.Error(err))
+}
+
 // Fatalf logs a message at level Fatal on the compatibleLogger.
 func (l CompatibleLogger) Fatalf(format string, args ...interface{}) {
 	l._log.Fatal(fmt.Sprintf(format, args...))
