@@ -64,7 +64,7 @@ func newLoggerConfig(level string, te zapcore.TimeEncoder, de zapcore.DurationEn
 
 func newLogger(level string, json, console, caller bool, lumberjack *lumberjack.Logger) (logger *zap.Logger) {
 	writeSyncer := getLogWriter(console, lumberjack)
-	encoder := getEncoder(json, caller)
+	encoder := getEncoder(json)
 	var logLevel zapcore.Level
 	switch strings.ToLower(level) {
 	case "debug":
@@ -83,7 +83,12 @@ func newLogger(level string, json, console, caller bool, lumberjack *lumberjack.
 		logLevel = zap.DebugLevel
 	}
 	core := zapcore.NewCore(encoder, writeSyncer, logLevel)
-	logger = zap.New(core, zap.AddCaller())
+	if caller {
+		logger = zap.New(core, zap.AddCaller())
+	} else {
+		logger = zap.New(core)
+	}
+
 	return
 }
 
@@ -95,26 +100,28 @@ func defaultLogger(json, console, caller bool) (logger *zap.Logger) {
 		//不显示debug
 		return lev < zap.ErrorLevel && lev > zap.DebugLevel
 	})
-	encoder := getEncoder(json, caller)
+	encoder := getEncoder(json)
 	lowWriteSyncer := getLogWriter(console, lumberJack(conf.ServerConf.Logger.Dir+string(filepath.Separator)+"info.log"))
 	highWriteSyncer := getLogWriter(console, lumberJack(conf.ServerConf.Logger.Dir+string(filepath.Separator)+"error.log"))
 
 	lowCore := zapcore.NewCore(encoder, lowWriteSyncer, lowPriority)
 	highCore := zapcore.NewCore(encoder, highWriteSyncer, highPriority)
-	logger = zap.New(zapcore.NewTee(highCore, lowCore), zap.AddCaller())
+	if caller {
+		logger = zap.New(zapcore.NewTee(highCore, lowCore), zap.AddCaller())
+	} else {
+		logger = zap.New(zapcore.NewTee(highCore, lowCore))
+	}
 	return
 }
 
-func getEncoder(json, caller bool) zapcore.Encoder {
+func getEncoder(json bool) zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.TimeKey = "time"
 	encoderConfig.StacktraceKey = "stacktrace"
 	encoderConfig.CallerKey = "line"
 	encoderConfig.EncodeTime = timeEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-	if caller {
-		encoderConfig.EncodeCaller = callerEncoder
-	}
+	encoderConfig.EncodeCaller = callerEncoder
 	encoderConfig.EncodeDuration = zapcore.SecondsDurationEncoder
 	encoderConfig.EncodeName = zapcore.FullNameEncoder
 	if json {
