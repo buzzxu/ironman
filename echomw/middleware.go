@@ -23,13 +23,15 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 				id = res.Header().Get(echo.HeaderXRequestID)
 			}
 			fields := []zapcore.Field{
+				zap.String("time", time.Now().Format(time.RFC3339)),
 				zap.Int("status", res.Status),
-				zap.String("latency", time.Since(start).String()),
 				zap.String("id", id),
+				zap.String("latency", time.Since(start).String()),
 				zap.String("method", req.Method),
-				zap.String("uri", req.RequestURI),
 				zap.String("host", req.Host),
 				zap.String("remote_ip", c.RealIP()),
+				zap.String("uri", req.RequestURI),
+				zap.String("user_agent", req.UserAgent()),
 			}
 			n := res.Status
 			switch {

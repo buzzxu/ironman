@@ -2,8 +2,10 @@ package logger
 
 import (
 	"github.com/buzzxu/ironman/conf"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -26,36 +28,30 @@ func InitLogger() {
 		if !strings.HasPrefix(logger.File, "./") || !strings.HasPrefix(logger.File, "/") {
 			logger.File = conf.ServerConf.Logger.Dir + string(filepath.Separator) + logger.File
 		}
-		logs[name] = NewCompatibleLogger(logger, lumberJack(logger.File))
+		logs[name] = newCompatibleLogger(name, logger)
 	}
 }
 
-func lumberJack(file string) (hook *lumberjack.Logger) {
-	hook = &lumberjack.Logger{
-		Filename:   file,                              // 日志文件位置
-		MaxSize:    conf.ServerConf.Logger.MaxSize,    // 日志文件最大大小(MB)
-		MaxBackups: conf.ServerConf.Logger.MaxBackups, // 保留旧文件最大数量
-		Compress:   conf.ServerConf.Logger.Compress,   // 是否压缩旧文件
-	}
-	if conf.ServerConf.Logger.MaxAge > 0 {
-		hook.MaxAge = conf.ServerConf.Logger.MaxAge // days 保留旧文件最长天数
-	}
-	return
+//New
+func New(name, level string, json, console bool) (*CompatibleLogger, error) {
+	return NewLogger(name, name+".log", level, json, console)
 }
 
-func NewCompatibleLogger(logConf *conf.LogConf, lumberjack *lumberjack.Logger) *CompatibleLogger {
-	var console, json bool
-	if logConf.Console {
-		console = logConf.Console
-	} else {
-		console = conf.ServerConf.Logger.Console
+//NewLogger
+func NewLogger(name, file, level string, json, console bool) (*CompatibleLogger, error) {
+	if name == "" {
+		return nil, errors.New("name is nil")
 	}
-	if logConf.Json {
-		json = logConf.Json
-	} else {
-		json = conf.ServerConf.Logger.Json
+	if level == "" {
+		level = "info"
 	}
-	return &CompatibleLogger{newLogger(logConf.Level, json, console, lumberjack).WithOptions(zap.AddCallerSkip(1))}
+	if file == "" {
+		file = conf.ServerConf.Logger.Dir + string(filepath.Separator) + name + "." + level + ".log"
+	}
+	if !strings.HasPrefix(file, "./") || !strings.HasPrefix(file, "/") {
+		file = conf.ServerConf.Logger.Dir + string(filepath.Separator) + file
+	}
+	return &CompatibleLogger{newLogger(level, json, console, lumberJack(file)).WithOptions(zap.AddCallerSkip(1))}, nil
 }
 
 func Logger(name string) (log *CompatibleLogger) {
@@ -105,4 +101,38 @@ func Fatalf(format string, args ...interface{}) {
 
 func X() *CompatibleLogger {
 	return logger
+}
+
+func lumberJack(file string) (hook *lumberjack.Logger) {
+	hook = &lumberjack.Logger{
+		Filename:   file,                              // 日志文件位置
+		MaxSize:    conf.ServerConf.Logger.MaxSize,    // 日志文件最大大小(MB)
+		MaxBackups: conf.ServerConf.Logger.MaxBackups, // 保留旧文件最大数量
+		Compress:   conf.ServerConf.Logger.Compress,   // 是否压缩旧文件
+	}
+	if conf.ServerConf.Logger.MaxAge > 0 {
+		hook.MaxAge = conf.ServerConf.Logger.MaxAge // days 保留旧文件最长天数
+	}
+	return
+}
+
+//newCompatibleLogger
+func newCompatibleLogger(name string, logConf *conf.LogConf) *CompatibleLogger {
+	var console, json bool
+	if logConf.Console {
+		console = logConf.Console
+	} else {
+		console = conf.ServerConf.Logger.Console
+	}
+	if logConf.Json {
+		json = logConf.Json
+	} else {
+		json = conf.ServerConf.Logger.Json
+	}
+	//return &CompatibleLogger{newLogger(logConf.Level, json, console, lumberjack).WithOptions(zap.AddCallerSkip(1))}
+	l, err := NewLogger(name, logConf.File, logConf.Level, json, console)
+	if err != nil {
+		log.Fatalf("logger[%s] 创建失败: %v", name, err)
+	}
+	return l
 }

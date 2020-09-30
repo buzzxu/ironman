@@ -19,7 +19,12 @@ import (
 func Server(e *echo.Echo) {
 	//初始化日志
 	logger.InitLogger()
-	e.Use(echomw.ZapLogger(logger.X().Unwrap()))
+	log, err := logger.New("access", "info", true, true)
+	if err != nil {
+		log.Fatalf("logger[%s] 创建失败: %v", "access", err)
+	}
+
+	e.Use(echomw.ZapLogger(log.Unwrap()))
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Secure())
 	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{

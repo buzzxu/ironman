@@ -87,6 +87,7 @@ func LoadDefaultConf() {
 	confFile := currentDir + "/app.yml"
 	if files.Exists(confFile) {
 		LoadConf(confFile)
+		return
 	}
 	confFile = currentDir + "/app.yaml"
 	if files.Exists(confFile) {
