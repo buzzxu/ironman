@@ -14,9 +14,8 @@ var logs map[string]*CompatibleLogger
 var logger *CompatibleLogger
 
 func InitLogger() {
-
 	//设置默认logger
-	logger = &CompatibleLogger{defaultLogger(conf.ServerConf.Logger.Json, conf.ServerConf.Logger.Console).WithOptions(zap.AddCallerSkip(1))}
+	logger = &CompatibleLogger{defaultLogger(conf.ServerConf.Logger.Json, conf.ServerConf.Logger.Console, true).WithOptions(zap.AddCallerSkip(1))}
 	logs = make(map[string]*CompatibleLogger)
 	for name, logger := range conf.ServerConf.Logger.Loggers {
 		if logger.Level == "" {
@@ -34,11 +33,11 @@ func InitLogger() {
 
 //New
 func New(name, level string, json, console bool) (*CompatibleLogger, error) {
-	return NewLogger(name, name+".log", level, json, console)
+	return NewLogger(name, name+".log", level, json, console, false)
 }
 
 //NewLogger
-func NewLogger(name, file, level string, json, console bool) (*CompatibleLogger, error) {
+func NewLogger(name, file, level string, json, console, caller bool) (*CompatibleLogger, error) {
 	if name == "" {
 		return nil, errors.New("name is nil")
 	}
@@ -51,7 +50,7 @@ func NewLogger(name, file, level string, json, console bool) (*CompatibleLogger,
 	if !strings.HasPrefix(file, "./") || !strings.HasPrefix(file, "/") {
 		file = conf.ServerConf.Logger.Dir + string(filepath.Separator) + file
 	}
-	return &CompatibleLogger{newLogger(level, json, console, lumberJack(file)).WithOptions(zap.AddCallerSkip(1))}, nil
+	return &CompatibleLogger{newLogger(level, json, console, caller, lumberJack(file)).WithOptions(zap.AddCallerSkip(1))}, nil
 }
 
 func Logger(name string) (log *CompatibleLogger) {
@@ -129,8 +128,7 @@ func newCompatibleLogger(name string, logConf *conf.LogConf) *CompatibleLogger {
 	} else {
 		json = conf.ServerConf.Logger.Json
 	}
-	//return &CompatibleLogger{newLogger(logConf.Level, json, console, lumberjack).WithOptions(zap.AddCallerSkip(1))}
-	l, err := NewLogger(name, logConf.File, logConf.Level, json, console)
+	l, err := NewLogger(name, logConf.File, logConf.Level, json, console, true)
 	if err != nil {
 		log.Fatalf("logger[%s] 创建失败: %v", name, err)
 	}

@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/mattn/go-colorable v0.1.7 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a

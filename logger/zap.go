@@ -62,9 +62,9 @@ func newLoggerConfig(level string, te zapcore.TimeEncoder, de zapcore.DurationEn
 	return
 }
 
-func newLogger(level string, json, console bool, lumberjack *lumberjack.Logger) (logger *zap.Logger) {
+func newLogger(level string, json, console, caller bool, lumberjack *lumberjack.Logger) (logger *zap.Logger) {
 	writeSyncer := getLogWriter(console, lumberjack)
-	encoder := getEncoder(json)
+	encoder := getEncoder(json, caller)
 	var logLevel zapcore.Level
 	switch strings.ToLower(level) {
 	case "debug":
@@ -87,7 +87,7 @@ func newLogger(level string, json, console bool, lumberjack *lumberjack.Logger) 
 	return
 }
 
-func defaultLogger(json, console bool) (logger *zap.Logger) {
+func defaultLogger(json, console, caller bool) (logger *zap.Logger) {
 	highPriority := zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
 		return lev >= zap.ErrorLevel
 	})
@@ -95,7 +95,7 @@ func defaultLogger(json, console bool) (logger *zap.Logger) {
 		//不显示debug
 		return lev < zap.ErrorLevel && lev > zap.DebugLevel
 	})
-	encoder := getEncoder(json)
+	encoder := getEncoder(json, caller)
 	lowWriteSyncer := getLogWriter(console, lumberJack(conf.ServerConf.Logger.Dir+string(filepath.Separator)+"info.log"))
 	highWriteSyncer := getLogWriter(console, lumberJack(conf.ServerConf.Logger.Dir+string(filepath.Separator)+"error.log"))
 
@@ -105,14 +105,16 @@ func defaultLogger(json, console bool) (logger *zap.Logger) {
 	return
 }
 
-func getEncoder(json bool) zapcore.Encoder {
+func getEncoder(json, caller bool) zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.TimeKey = "time"
 	encoderConfig.StacktraceKey = "stacktrace"
 	encoderConfig.CallerKey = "line"
 	encoderConfig.EncodeTime = timeEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-	encoderConfig.EncodeCaller = callerEncoder
+	if caller {
+		encoderConfig.EncodeCaller = callerEncoder
+	}
 	encoderConfig.EncodeDuration = zapcore.SecondsDurationEncoder
 	encoderConfig.EncodeName = zapcore.FullNameEncoder
 	if json {
