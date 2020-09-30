@@ -21,6 +21,7 @@ type (
 		DataSource *dataSource            `yaml:"dataSource"`
 		Redis      *redisConf             `yaml:"redis"`
 		MongoDb    *mongoDb               `yaml:"mongo"`
+		WorkDir    string
 	}
 	Logger struct {
 		Dir        string              `yaml:"dir"`
@@ -115,7 +116,9 @@ func LoadConf(conf string) {
 	if ServerConf.MaxProc == 0 {
 		ServerConf.MaxProc = runtime.NumCPU()
 	}
+
 	currentDir, _ := os.Getwd()
+	ServerConf.WorkDir = currentDir
 	//默认日志配置
 	if ServerConf.Logger == nil {
 		ServerConf.Logger = &Logger{
@@ -145,7 +148,7 @@ func LoadConf(conf string) {
 			ServerConf.Logger.Compress = true
 		}
 		if ServerConf.Logger.Dir == "" {
-			ServerConf.Logger.Dir = currentDir
+			ServerConf.Logger.Dir = ServerConf.WorkDir
 		}
 	}
 }

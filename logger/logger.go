@@ -24,7 +24,7 @@ func InitLogger() {
 		if logger.File == "" {
 			logger.File = conf.ServerConf.Logger.Dir + string(filepath.Separator) + name + "." + logger.Level + ".log"
 		}
-		if !strings.HasPrefix(logger.File, "./") || !strings.HasPrefix(logger.File, "/") {
+		if !strings.HasPrefix(logger.File, "./") && !strings.HasPrefix(logger.File, "/") {
 			logger.File = conf.ServerConf.Logger.Dir + string(filepath.Separator) + logger.File
 		}
 		logs[name] = newCompatibleLogger(name, logger)
@@ -47,7 +47,7 @@ func NewLogger(name, file, level string, json, console, caller bool) (*Compatibl
 	if file == "" {
 		file = conf.ServerConf.Logger.Dir + string(filepath.Separator) + name + "." + level + ".log"
 	}
-	if !strings.HasPrefix(file, "./") || !strings.HasPrefix(file, "/") {
+	if !strings.HasPrefix(file, "./") && !strings.HasPrefix(file, "/") {
 		file = conf.ServerConf.Logger.Dir + string(filepath.Separator) + file
 	}
 	return &CompatibleLogger{newLogger(level, json, console, caller, lumberJack(file)).WithOptions(zap.AddCallerSkip(1))}, nil
@@ -61,6 +61,10 @@ func Logger(name string) (log *CompatibleLogger) {
 		log = logger
 	}
 	return log
+}
+
+func Of(name string) (log *CompatibleLogger) {
+	return Logger(name)
 }
 
 func Info(args ...interface{}) {
