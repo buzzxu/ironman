@@ -17,7 +17,7 @@ import (
 
 // Server 启动服务
 func Server(e *echo.Echo) {
-	log, err := logger.New("access", "info", true, true, false)
+	log, err := logger.New("access", "info", true, true, true)
 	if err != nil {
 		logger.Fatalf("logger[%s] 创建失败: %v", "access", err)
 	}
