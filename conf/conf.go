@@ -2,13 +2,13 @@ package conf
 
 import (
 	"github.com/buzzxu/boys/common/files"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
+	"sync"
 	"time"
-
-	yaml "gopkg.in/yaml.v2"
 )
 
 type (
@@ -81,6 +81,8 @@ type (
 
 var ServerConf = &serverConf{}
 
+var once sync.Once
+
 func init() {
 }
 func LoadDefaultConf() {
@@ -99,58 +101,61 @@ func LoadDefaultConf() {
 }
 
 func LoadConf(conf string) {
-	if !files.Exists(conf) {
-		log.Fatalf("未找到 %s", conf)
-	}
-	yamlFile, err := ioutil.ReadFile(conf)
-	if err != nil {
-		log.Fatalf("配置文件读取失败 #%v ", err)
-		return
-	}
-	err = yaml.Unmarshal(yamlFile, ServerConf)
-	if err != nil {
-		log.Fatalf("配置文件解析失败: %v", err)
-		os.Exit(1)
-	}
-	// 设置go processor数量
-	if ServerConf.MaxProc == 0 {
-		ServerConf.MaxProc = runtime.NumCPU()
-	}
-	if ServerConf.Port == "" {
-		ServerConf.Port = "3000"
-	}
-	currentDir, _ := os.Getwd()
-	ServerConf.WorkDir = currentDir
-	//默认日志配置
-	if ServerConf.Logger == nil {
-		ServerConf.Logger = &Logger{
-			MaxSize:    50,
-			MaxAge:     30,
-			MaxBackups: 30,
-			Compress:   true,
-			Json:       true,
-			Console:    true,
-			Line:       true,
-			Dir:        currentDir,
+	once.Do(func() {
+		if !files.Exists(conf) {
+			log.Fatalf("未找到 %s", conf)
 		}
-	} else {
-		if ServerConf.Logger.MaxSize == 0 {
-			ServerConf.Logger.MaxSize = 50
+		yamlFile, err := ioutil.ReadFile(conf)
+		if err != nil {
+			log.Fatalf("配置文件读取失败 #%v ", err)
+			return
 		}
-		if ServerConf.Logger.MaxAge == 0 {
-			ServerConf.Logger.MaxAge = 30
+		err = yaml.Unmarshal(yamlFile, ServerConf)
+		if err != nil {
+			log.Fatalf("配置文件解析失败: %v", err)
+			os.Exit(1)
 		}
-		if ServerConf.Logger.MaxBackups == 0 {
-			ServerConf.Logger.MaxBackups = 30
+		// 设置go processor数量
+		if ServerConf.MaxProc == 0 {
+			ServerConf.MaxProc = runtime.NumCPU()
 		}
-		if !ServerConf.Logger.Line {
-			ServerConf.Logger.Line = true
+		if ServerConf.Port == "" {
+			ServerConf.Port = "3000"
 		}
-		if !ServerConf.Logger.Compress {
-			ServerConf.Logger.Compress = true
+		currentDir, _ := os.Getwd()
+		ServerConf.WorkDir = currentDir
+		//默认日志配置
+		if ServerConf.Logger == nil {
+			ServerConf.Logger = &Logger{
+				MaxSize:    50,
+				MaxAge:     30,
+				MaxBackups: 30,
+				Compress:   true,
+				Json:       true,
+				Console:    true,
+				Line:       true,
+				Dir:        currentDir,
+			}
+		} else {
+			if ServerConf.Logger.MaxSize == 0 {
+				ServerConf.Logger.MaxSize = 50
+			}
+			if ServerConf.Logger.MaxAge == 0 {
+				ServerConf.Logger.MaxAge = 30
+			}
+			if ServerConf.Logger.MaxBackups == 0 {
+				ServerConf.Logger.MaxBackups = 30
+			}
+			if !ServerConf.Logger.Line {
+				ServerConf.Logger.Line = true
+			}
+			if !ServerConf.Logger.Compress {
+				ServerConf.Logger.Compress = true
+			}
+			if ServerConf.Logger.Dir == "" {
+				ServerConf.Logger.Dir = ServerConf.WorkDir
+			}
 		}
-		if ServerConf.Logger.Dir == "" {
-			ServerConf.Logger.Dir = ServerConf.WorkDir
-		}
-	}
+	})
+
 }

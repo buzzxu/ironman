@@ -12,7 +12,7 @@ func init() {
 }
 
 func TestNewCompatibleLogger(t *testing.T) {
-
+	InitLogger()
 	Logger("order").Errorf("fdfdfdf %v", errors.New("测试异常"))
 	Logger("order").Debug("我是debug")
 	Logger("error").Info("323>>>")

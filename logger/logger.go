@@ -8,27 +8,32 @@ import (
 	"log"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 var logs map[string]*CompatibleLogger
 var logger *CompatibleLogger
+var once sync.Once
 
 func InitLogger() {
-	//设置默认logger
-	logger = &CompatibleLogger{defaultLogger(conf.ServerConf.Logger.Json, conf.ServerConf.Logger.Console, true).WithOptions(zap.AddCallerSkip(1))}
-	logs = make(map[string]*CompatibleLogger)
-	for name, logger := range conf.ServerConf.Logger.Loggers {
-		if logger.Level == "" {
-			logger.Level = "info"
+	once.Do(func() {
+		//设置默认logger
+		logger = &CompatibleLogger{defaultLogger(conf.ServerConf.Logger.Json, conf.ServerConf.Logger.Console, true).WithOptions(zap.AddCallerSkip(1))}
+		logs = make(map[string]*CompatibleLogger)
+		for name, logger := range conf.ServerConf.Logger.Loggers {
+			if logger.Level == "" {
+				logger.Level = "info"
+			}
+			if logger.File == "" {
+				logger.File = conf.ServerConf.Logger.Dir + string(filepath.Separator) + name + "." + logger.Level + ".log"
+			}
+			if !strings.HasPrefix(logger.File, "./") && !strings.HasPrefix(logger.File, "/") {
+				logger.File = conf.ServerConf.Logger.Dir + string(filepath.Separator) + logger.File
+			}
+			logs[name] = newCompatibleLogger(name, logger)
 		}
-		if logger.File == "" {
-			logger.File = conf.ServerConf.Logger.Dir + string(filepath.Separator) + name + "." + logger.Level + ".log"
-		}
-		if !strings.HasPrefix(logger.File, "./") && !strings.HasPrefix(logger.File, "/") {
-			logger.File = conf.ServerConf.Logger.Dir + string(filepath.Separator) + logger.File
-		}
-		logs[name] = newCompatibleLogger(name, logger)
-	}
+	})
+
 }
 
 //New
