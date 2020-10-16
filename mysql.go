@@ -2,7 +2,7 @@ package ironman
 
 import (
 	"fmt"
-	"log"
+	"github.com/buzzxu/ironman/logger"
 	"time"
 
 	"github.com/buzzxu/ironman/conf"
@@ -43,7 +43,7 @@ func CreateDB(callback func(db *gorm.DB)) *gorm.DB {
 	))
 
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to connect to log mysql: %s", err))
+		logger.Fatalf("Failed to connect to log mysql: %s", err.Error())
 	}
 	db.DB().SetMaxIdleConns(dbConfig.MaxIdleConns)
 	db.DB().SetMaxOpenConns(dbConfig.MaxOpenConns)

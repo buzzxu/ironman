@@ -1,8 +1,7 @@
 package ironman
 
 import (
-	"fmt"
-	"log"
+	"github.com/buzzxu/ironman/logger"
 	"time"
 
 	"github.com/buzzxu/ironman/conf"
@@ -43,12 +42,11 @@ func RedisConnect() {
 			WriteTimeout: 500 * time.Millisecond,
 			IdleTimeout:  60 * time.Second,
 		})
-		pong, err := Redis.Ping().Result()
+		_, err := Redis.Ping().Result()
 		if err != nil {
-			log.Fatalf("Redis connect error.%s", err.Error())
+			logger.Fatalf("Redis connect error.%s", err.Error())
 		}
-		log.Printf("Redis connect success")
-		fmt.Println(pong, err)
+		logger.Info("Redis connect success")
 		if conf.ServerConf.Redis.Stats {
 			var ticker *time.Ticker
 			ticker = time.NewTicker(5 * time.Minute)
@@ -62,13 +60,13 @@ func RedisConnect() {
 			}()
 		}
 	} else {
-		fmt.Printf("Redis未配置,无需连接")
+		logger.Warn("Redis未配置,无需连接")
 	}
 }
 
 func RedisStats() {
 	poolStats := Redis.PoolStats()
-	log.Printf("Redis Stats:[TotalConns:%d,IdleConns:%d,StaleConns:%d,Hits:%d,Misses:%d]",
+	logger.Infof("Redis Stats:[TotalConns:%d,IdleConns:%d,StaleConns:%d,Hits:%d,Misses:%d]",
 		poolStats.TotalConns,
 		poolStats.IdleConns,
 		poolStats.StaleConns,
