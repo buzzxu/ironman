@@ -17,8 +17,6 @@ import (
 
 // Server 启动服务
 func Server(e *echo.Echo) {
-	//初始化日志
-	logger.InitLogger()
 	log, err := logger.New("access", "info", true, true, false)
 	if err != nil {
 		logger.Fatalf("logger[%s] 创建失败: %v", "access", err)
