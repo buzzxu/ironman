@@ -22,6 +22,7 @@ type (
 		Redis      *redisConf             `yaml:"redis"`
 		MongoDb    *mongoDb               `yaml:"mongo"`
 		WorkDir    string
+		Pdf        *pdf `yaml:"pdf"`
 	}
 	Logger struct {
 		Dir        string              `yaml:"dir"`
@@ -76,6 +77,11 @@ type (
 		Password  string `yaml:"password"`
 		Timeout   int    `yaml:"timeout"`
 		PoolLimit int    `yaml:"poolLimit"`
+	}
+
+	pdf struct {
+		Url     string `yaml:"url"`
+		Timeout int    `yaml:"timeout"`
 	}
 )
 
