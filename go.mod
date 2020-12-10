@@ -11,7 +11,7 @@ require (
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/thecodingmachine/gotenberg-go-client/v7 v7.1.0 // indirect
+	github.com/thecodingmachine/gotenberg-go-client/v7 v7.1.0
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0

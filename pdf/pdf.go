@@ -8,6 +8,7 @@ import (
 	"github.com/thecodingmachine/gotenberg-go-client/v7"
 	"log"
 	"net/http"
+	"path"
 	"time"
 )
 
@@ -208,8 +209,15 @@ func Request(file *PDF) (gotenberg.Request, error) {
 }
 
 func Document(file *PDFFile) (documet gotenberg.Document, err error) {
-	var bytes *[]byte
+	var (
+		bytes    *[]byte
+		fileName string
+	)
 	if file.Url != "" {
+		fileName = file.FileName
+		if fileName == "" {
+			fileName = path.Base(file.Url)
+		}
 		bytes, err = files.URL(file.Url)
 		if err != nil {
 			return nil, err
@@ -217,10 +225,16 @@ func Document(file *PDFFile) (documet gotenberg.Document, err error) {
 	} else if file.Data != nil {
 		bytes = file.Data
 	} else if file.Body != "" {
-		return gotenberg.NewDocumentFromString(file.FileName, file.Body)
+		if file.FileName == "" {
+			return nil, errors.New("fileName is empty")
+		}
+		return gotenberg.NewDocumentFromString(fileName, file.Body)
 	} else {
 		return nil, errors.New("无法获取数据")
 	}
-	documet, err = gotenberg.NewDocumentFromBytes(file.FileName, *bytes)
+	if fileName == "" {
+		return nil, errors.New("fileName is empty")
+	}
+	documet, err = gotenberg.NewDocumentFromBytes(fileName, *bytes)
 	return
 }
