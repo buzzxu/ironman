@@ -45,18 +45,21 @@ func JwtConfig(skiper middleware.Skipper) (jwtConfig middleware.JWTConfig) {
 		AuthScheme:    DefaultJWTConfig.AuthScheme,
 	}
 	parts := strings.Split(jwtConfig.TokenLookup, ":")
-	extractor := jwtFromHeader(parts[1], jwtConfig.AuthScheme)
+	extractor := jwtGet(parts[1], jwtConfig.AuthScheme)
 	switch parts[0] {
 	case "query":
 		extractor = jwtFromQuery(parts[1])
 	case "cookie":
 		extractor = jwtFromCookie(parts[1])
+	case "header":
+		extractor = jwtFromHeader(parts[1], jwtConfig.AuthScheme)
+
 	}
 	DefaultJWTConfig.jwtExtractor = extractor
 	DefaultJWTConfig.keyFunc = func(t *jwt.Token) (interface{}, error) {
 		// Check the signing method
 		if t.Method.Alg() != jwtConfig.SigningMethod {
-			return nil, fmt.Errorf("Unexpected jwt signing method=%v", t.Header["alg"])
+			return nil, fmt.Errorf("unexpected jwt signing method=%v", t.Header["alg"])
 		}
 		return jwtConfig.SigningKey, nil
 	}
@@ -88,13 +91,45 @@ func ParserToken(c echo.Context) *Optional {
 	return OptionalOfNil()
 }
 
+func GetToken(c echo.Context, name string, authScheme string) (string, error) {
+	token := c.Request().Header.Get(name)
+	if token == "" {
+		token = c.QueryParam(name)
+		if token == "" {
+			cookie, err := c.Cookie(name)
+			if err != nil {
+				return "", nil
+			}
+			token = cookie.Value
+		}
+	}
+	if token != "" {
+		l := len(authScheme)
+		if len(token) > l+1 && token[:l] == authScheme {
+			return token[l+1:], nil
+		} else {
+			return token, nil
+		}
+	}
+	return "", nil
+}
+func jwtGet(name string, authScheme string) jwtExtractor {
+	return func(c echo.Context) (string, error) {
+		return GetToken(c, name, authScheme)
+	}
+}
+
 // jwtFromHeader returns a `jwtExtractor` that extracts token from the request header.
 func jwtFromHeader(header string, authScheme string) jwtExtractor {
 	return func(c echo.Context) (string, error) {
 		auth := c.Request().Header.Get(header)
 		l := len(authScheme)
-		if len(auth) > l+1 && auth[:l] == authScheme {
-			return auth[l+1:], nil
+		if auth != "" {
+			if len(auth) > l+1 && auth[:l] == authScheme {
+				return auth[l+1:], nil
+			} else {
+				return auth, nil
+			}
 		}
 		return "", nil
 	}
