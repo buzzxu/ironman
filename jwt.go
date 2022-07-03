@@ -91,6 +91,19 @@ func ParserToken(c echo.Context) *Optional {
 	return OptionalOfNil()
 }
 
+func ParserTokenUnverified(c echo.Context, name string, authScheme string) *Optional {
+	auth, err := GetToken(c, name, authScheme)
+	if len(auth) == 0 {
+		return OptionalOfNil()
+	}
+	token := new(jwt.Token)
+	claims := reflect.ValueOf(DefaultJWTConfig.Claims).Interface().(jwt.Claims)
+	token, _, err = new(jwt.Parser).ParseUnverified(auth, claims)
+	if err == nil {
+		return OptionalOf(token)
+	}
+	return OptionalOfNil()
+}
 func GetToken(c echo.Context, name string, authScheme string) (string, error) {
 	token := c.Request().Header.Get(name)
 	if token == "" {
