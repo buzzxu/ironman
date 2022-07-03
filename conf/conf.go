@@ -2,7 +2,6 @@ package conf
 
 import (
 	"github.com/buzzxu/boys/common/files"
-	"github.com/buzzxu/ironman/logger"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -102,7 +101,6 @@ func LoadDefaultConf() {
 	confFile = currentDir + "/app.yaml"
 	if files.Exists(confFile) {
 		LoadConf(confFile)
-		logger.InitLogger()
 	} else {
 		log.Fatalf("未找到 %s,请确认约定的文件名[app.yml,app.yaml]", confFile)
 	}
