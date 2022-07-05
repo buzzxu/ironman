@@ -126,7 +126,7 @@ func GetToken(c echo.Context, name string, authScheme string) (string, error) {
 	}
 	if token != "" {
 		l := len(authScheme)
-		if len(token) > l+1 && token[:l] == authScheme {
+		if l > 0 && len(token) > l+1 && token[:l] == authScheme {
 			return token[l+1:], nil
 		} else {
 			return token, nil
