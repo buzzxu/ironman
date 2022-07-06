@@ -1,11 +1,12 @@
 package ironman
 
 import (
+	"context"
 	"github.com/buzzxu/ironman/logger"
+	"github.com/go-redis/redis/v8"
 	"time"
 
 	"github.com/buzzxu/ironman/conf"
-	"github.com/go-redis/redis"
 )
 
 // Redis 客户端
@@ -42,7 +43,8 @@ func RedisConnect() {
 			WriteTimeout: 500 * time.Millisecond,
 			IdleTimeout:  60 * time.Second,
 		})
-		_, err := Redis.Ping().Result()
+		var ctx = context.Background()
+		_, err := Redis.Ping(ctx).Result()
 		if err != nil {
 			logger.Fatalf("Redis connect error.%s", err.Error())
 		}
