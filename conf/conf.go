@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/buzzxu/boys/common/files"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
@@ -95,29 +94,29 @@ func init() {
 }
 
 func LoadDefaultConf() {
-	err := LoadConfBy("/app.yml")
+	err := LoadConf("/app.yml")
 	if err != nil {
 		log.Fatalf("Load app config error! %s", err.Error())
 	}
 }
 
-func LoadConfBy(file string) error {
+func LoadConf(file string) error {
 	currentDir, _ := os.Getwd()
 	confFile := currentDir + file
 	if files.Exists(confFile) {
-		LoadConf(confFile)
+		loadConf(confFile)
 		log.Printf("Load %s success !", confFile)
 		return nil
 	} else {
 		return errors.New(fmt.Sprintf("未找到 %s,请确认约定的文件名[app.yml]", confFile))
 	}
 }
-func LoadConf(conf string) {
+func loadConf(file string) {
 	once.Do(func() {
-		if !files.Exists(conf) {
-			log.Fatalf("未找到 %s", conf)
+		if !files.Exists(file) {
+			log.Fatalf("未找到 %s", file)
 		}
-		yamlFile, err := ioutil.ReadFile(conf)
+		yamlFile, err := os.ReadFile(file)
 		if err != nil {
 			log.Fatalf("配置文件读取失败 #%v ", err)
 			return
