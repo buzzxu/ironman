@@ -1,6 +1,8 @@
 package conf
 
 import (
+	"errors"
+	"fmt"
 	"github.com/buzzxu/boys/common/files"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -91,21 +93,25 @@ var once sync.Once
 
 func init() {
 }
+
 func LoadDefaultConf() {
-	currentDir, _ := os.Getwd()
-	confFile := currentDir + "/app.yml"
-	if files.Exists(confFile) {
-		LoadConf(confFile)
-		return
-	}
-	confFile = currentDir + "/app.yaml"
-	if files.Exists(confFile) {
-		LoadConf(confFile)
-	} else {
-		log.Fatalf("未找到 %s,请确认约定的文件名[app.yml,app.yaml]", confFile)
+	err := LoadConfBy("/app.yml")
+	if err != nil {
+		log.Fatalf("Load app config error! %s", err.Error())
 	}
 }
 
+func LoadConfBy(file string) error {
+	currentDir, _ := os.Getwd()
+	confFile := currentDir + file
+	if files.Exists(confFile) {
+		LoadConf(confFile)
+		log.Printf("Load %s success !", confFile)
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("未找到 %s,请确认约定的文件名[app.yml]", confFile))
+	}
+}
 func LoadConf(conf string) {
 	once.Do(func() {
 		if !files.Exists(conf) {
