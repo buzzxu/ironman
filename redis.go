@@ -2,11 +2,10 @@ package ironman
 
 import (
 	"context"
-	"github.com/buzzxu/ironman/logger"
-	"github.com/go-redis/redis/v8"
-	"time"
-
 	"github.com/buzzxu/ironman/conf"
+	"github.com/buzzxu/ironman/logger"
+	"github.com/redis/go-redis/v9"
+	"time"
 )
 
 // Redis 客户端
@@ -41,7 +40,6 @@ func RedisConnect() {
 			DialTimeout:  1 * time.Second,
 			ReadTimeout:  500 * time.Millisecond,
 			WriteTimeout: 500 * time.Millisecond,
-			IdleTimeout:  60 * time.Second,
 		})
 		var ctx = context.Background()
 		_, err := Redis.Ping(ctx).Result()
@@ -78,6 +76,9 @@ func RedisStats() {
 
 func RedisClose() {
 	if Redis != nil {
-		Redis.Close()
+		err := Redis.Close()
+		if err != nil {
+			return
+		}
 	}
 }
