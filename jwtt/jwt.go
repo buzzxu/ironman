@@ -277,3 +277,6 @@ func GetTokenRemainingTime(token *jwt.Token) (time.Duration, error) {
 
 	return time.Until(expTime.Time), nil
 }
+
+// Optional 为了保持与原代码兼容，保留Optional类型的支持
+// 注意：你需要确保你有Optional的相关实现（OptionalOf和OptionalOfNil函数）
