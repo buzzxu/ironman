@@ -130,16 +130,21 @@ func SetErrorMessage(errType error, message string) {
 
 // JwtConfig 设置JWT 配置
 func JwtConfig(skipper middleware.Skipper) echojwt.Config {
+	return JwtConfigWithClaims(skipper, func(c echo.Context) jwt.Claims {
+		return NewClaims()
+	})
+}
+
+// JwtConfigWithClaims 设置JWT 配置，并使用自定义的Claims
+func JwtConfigWithClaims(skipper middleware.Skipper, claimsFunc func(c echo.Context) jwt.Claims) echojwt.Config {
 	return echojwt.Config{
 		Skipper:       skipper,
 		SigningMethod: DefaultJWTConfig.SigningMethod,
 		ContextKey:    DefaultJWTConfig.ContextKey,
 		SigningKey:    DefaultJWTConfig.SigningKey,
 		TokenLookup:   DefaultJWTConfig.TokenLookup,
-		NewClaimsFunc: func(c echo.Context) jwt.Claims {
-			return NewClaims()
-		},
-		ErrorHandler: DefaultJWTConfig.ErrorConfig.ErrorHandler,
+		NewClaimsFunc: claimsFunc,
+		ErrorHandler:  DefaultJWTConfig.ErrorConfig.ErrorHandler,
 	}
 }
 
