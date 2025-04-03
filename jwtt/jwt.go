@@ -21,10 +21,12 @@ var (
 
 // JWTConfig JWT配置
 type JWTConfig struct {
+	Claims        jwt.Claims
 	SigningMethod string
 	ContextKey    string
 	SigningKey    []byte
 	TokenLookup   string
+	KeyFunc       jwt.Keyfunc
 	ExpiresIn     time.Duration // 默认令牌过期时间
 	ErrorConfig   ErrorConfig   // 错误处理配置
 }
@@ -84,6 +86,8 @@ var DefaultJWTConfig = JWTConfig{
 	SigningKey:    []byte("ironman"),
 	TokenLookup:   "header:Authorization,query:Authorization,param:Authorization",
 	ExpiresIn:     time.Hour * 168, // 默认168小时过期
+	Claims:        nil,
+	KeyFunc:       nil,
 	//ErrorConfig:   DefaultErrorConfig,
 }
 
@@ -103,6 +107,9 @@ func NewClaims() jwt.Claims {
 
 // NewCustomClaims 创建一个带有自定义字段的Claims对象
 func NewCustomClaims() *CustomClaims {
+	if customClaims, ok := DefaultJWTConfig.Claims.(*CustomClaims); ok {
+		return customClaims
+	}
 	return &CustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{},
 	}
@@ -131,7 +138,7 @@ func SetErrorMessage(errType error, message string) {
 // JwtConfig 设置JWT 配置
 func JwtConfig(skipper middleware.Skipper) echojwt.Config {
 	return JwtConfigWithClaims(skipper, func(c echo.Context) jwt.Claims {
-		return NewClaims()
+		return NewCustomClaims()
 	})
 }
 
@@ -143,6 +150,7 @@ func JwtConfigWithClaims(skipper middleware.Skipper, claimsFunc func(c echo.Cont
 		ContextKey:    DefaultJWTConfig.ContextKey,
 		SigningKey:    DefaultJWTConfig.SigningKey,
 		TokenLookup:   DefaultJWTConfig.TokenLookup,
+		KeyFunc:       DefaultJWTConfig.KeyFunc,
 		NewClaimsFunc: claimsFunc,
 		ErrorHandler:  DefaultJWTConfig.ErrorConfig.ErrorHandler,
 	}
@@ -183,6 +191,7 @@ func GenerateTokenWithExpiration(claims jwt.Claims, expiresIn time.Duration) (st
 func ParserToken(c echo.Context) *ironman.Optional {
 	// Get the token from the context - it will be placed there by echo-jwt middleware
 	token, ok := c.Get(DefaultJWTConfig.ContextKey).(*jwt.Token)
+	//claims := reflect.ValueOf(DefaultJWTConfig.Claims).Interface().(jwt.Claims)
 	if !ok || token == nil {
 		return ironman.OptionalOfNil()
 	}
@@ -208,9 +217,8 @@ func TokenOf(auth string) (*ironman.Optional, error) {
 
 	// Create parser with default claims
 	parser := jwt.NewParser()
-
 	// Parse the token without verification
-	token, _, err := parser.ParseUnverified(auth, NewClaims())
+	token, _, err := parser.ParseUnverified(auth, DefaultJWTConfig.Claims)
 	if err == nil {
 		return ironman.OptionalOf(token), nil
 	}
@@ -269,6 +277,3 @@ func GetTokenRemainingTime(token *jwt.Token) (time.Duration, error) {
 
 	return time.Until(expTime.Time), nil
 }
-
-// Optional 为了保持与原代码兼容，保留Optional类型的支持
-// 注意：你需要确保你有Optional的相关实现（OptionalOf和OptionalOfNil函数）
