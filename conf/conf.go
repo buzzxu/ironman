@@ -47,7 +47,6 @@ type (
 	jwtConf struct {
 		ContextKey    string        `yaml:"contextKey"`
 		SigningKey    string        `yaml:"signingKey"`
-		AuthScheme    string        `yaml:"authScheme"`
 		SigningMethod string        `yaml:"signingMethod"`
 		Expires       time.Duration `yaml:"expires"`
 	}
