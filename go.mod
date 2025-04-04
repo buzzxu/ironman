@@ -15,7 +15,7 @@ require (
 	github.com/labstack/gommon v0.4.2
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.7.3
-	github.com/thecodingmachine/gotenberg-go-client/v7 v7.1.0
+	github.com/thecodingmachine/gotenberg-go-client/v7 v7.2.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.36.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
