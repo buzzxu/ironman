@@ -41,37 +41,44 @@ type ErrorConfig struct {
 	ErrorMessages map[string]string
 }
 
-// DefaultErrorConfig 默认错误处理配置
-var DefaultErrorConfig = ErrorConfig{
-	ErrorHandler: defaultErrorHandler,
-	ErrorStatusCodes: map[string]int{
+// 默认错误状态码和消息
+var (
+	defaultErrorStatusCodes = map[string]int{
 		ErrJWTMissing.Error():      http.StatusBadRequest,
 		ErrJWTInvalid.Error():      http.StatusUnauthorized,
 		ErrJWTUnauthorized.Error(): http.StatusForbidden,
-	},
-	ErrorMessages: map[string]string{
+	}
+
+	defaultErrorMessages = map[string]string{
 		ErrJWTMissing.Error():      "Missing or malformed JWT",
 		ErrJWTInvalid.Error():      "Invalid or expired JWT",
 		ErrJWTUnauthorized.Error(): "Unauthorized access",
-	},
+	}
+)
+
+// DefaultErrorConfig 默认错误处理配置
+var DefaultErrorConfig = ErrorConfig{
+	ErrorHandler:     defaultErrorHandler,
+	ErrorStatusCodes: defaultErrorStatusCodes,
+	ErrorMessages:    defaultErrorMessages,
 }
 
 // defaultErrorHandler 默认错误处理函数
 func defaultErrorHandler(c echo.Context, err error) error {
-	config := DefaultJWTConfig.ErrorConfig
 	var message string
 	var status int
 
+	// 使用局部变量而不是引用 DefaultJWTConfig
 	switch err.Error() {
 	case ErrJWTMissing.Error():
-		message = config.ErrorMessages[ErrJWTMissing.Error()]
-		status = config.ErrorStatusCodes[ErrJWTMissing.Error()]
+		message = defaultErrorMessages[ErrJWTMissing.Error()]
+		status = defaultErrorStatusCodes[ErrJWTMissing.Error()]
 	case ErrJWTInvalid.Error():
-		message = config.ErrorMessages[ErrJWTInvalid.Error()]
-		status = config.ErrorStatusCodes[ErrJWTInvalid.Error()]
+		message = defaultErrorMessages[ErrJWTInvalid.Error()]
+		status = defaultErrorStatusCodes[ErrJWTInvalid.Error()]
 	default:
-		message = config.ErrorMessages[ErrJWTUnauthorized.Error()]
-		status = config.ErrorStatusCodes[ErrJWTUnauthorized.Error()]
+		message = defaultErrorMessages[ErrJWTUnauthorized.Error()]
+		status = defaultErrorStatusCodes[ErrJWTUnauthorized.Error()]
 	}
 
 	return c.JSON(status, map[string]string{
@@ -88,7 +95,7 @@ var DefaultJWTConfig = JWTConfig{
 	ExpiresIn:     time.Hour * 168, // 默认168小时过期
 	Claims:        nil,
 	KeyFunc:       nil,
-	//ErrorConfig:   DefaultErrorConfig,
+	ErrorConfig:   DefaultErrorConfig,
 }
 
 // CustomClaims 自定义JWT Claims结构体
