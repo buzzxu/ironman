@@ -30,7 +30,7 @@ func RedisConnect() {
 		if conf.ServerConf.Redis.MinIdleConns > 0 {
 			minIdleConns = conf.ServerConf.Redis.MinIdleConns
 		}
-		Redis = redis.NewClient(&redis.Options{
+		rconf := &redis.Options{
 			Addr:         conf.ServerConf.Redis.Addr,
 			Password:     password,                 // no password set
 			DB:           conf.ServerConf.Redis.DB, // use default DB
@@ -40,7 +40,11 @@ func RedisConnect() {
 			DialTimeout:  1 * time.Second,
 			ReadTimeout:  500 * time.Millisecond,
 			WriteTimeout: 500 * time.Millisecond,
-		})
+		}
+		if len(conf.ServerConf.Redis.Username) > 0 {
+			rconf.Username = conf.ServerConf.Redis.Username
+		}
+		Redis = redis.NewClient(rconf)
 		var ctx = context.Background()
 		_, err := Redis.Ping(ctx).Result()
 		if err != nil {
