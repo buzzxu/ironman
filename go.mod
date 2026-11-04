@@ -1,8 +1,6 @@
 module github.com/buzzxu/ironman
 
-go 1.26.0
-
-toolchain go1.27.3
+go 1.27.3
 
 require (
 	github.com/buzzxu/boys v0.3.11

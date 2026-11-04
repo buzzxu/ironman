@@ -23,7 +23,7 @@ func TestEchoV5ErrorResponses(t *testing.T) {
 		status int
 	}{
 		{"application", NewError(409, "Conflict", map[string]string{"reason": "duplicate"}), 409},
-		{"wrapped", fmt.Errorf("wrapped: %w", echo.ErrUnauthorized), 401},
+		{"wrapped", fmt.Errorf("wrapped: %w", echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")), 401},
 		{"http", echo.NewHTTPError(400, "invalid request"), 400},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
