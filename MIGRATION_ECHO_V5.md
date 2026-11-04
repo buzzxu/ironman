@@ -19,7 +19,7 @@ application handlers and middleware together; Echo v4 and v5 types cannot be mix
 ## Deployment checks
 
 Build with Go 1.27.3 or a newer supported, security-patched toolchain. The module
-minimum is Go 1.26 because the selected crypto/net dependencies require it.
+minimum is Go 1.27.3, matching the current project toolchain policy.
 
 Echo v5 uses the connection peer for RealIP by default. Behind a reverse proxy,
 configure `e.IPExtractor` to trust only that proxy's address ranges and have the
