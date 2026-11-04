@@ -1,7 +1,7 @@
 package echomw
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"time"
@@ -9,14 +9,15 @@ import (
 
 func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			start := time.Now()
 			err := next(c)
 			if err != nil {
-				c.Error(err)
+				c.Echo().HTTPErrorHandler(c, err)
 			}
 			req := c.Request()
 			res := c.Response()
+			_, status := echo.ResolveResponseStatus(res, err)
 
 			id := req.Header.Get(echo.HeaderXRequestID)
 			if id == "" {
@@ -24,7 +25,7 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 			}
 			fields := []zapcore.Field{
 				zap.String("time", time.Now().Format(time.RFC3339)),
-				zap.Int("status", res.Status),
+				zap.Int("status", status),
 				zap.String("id", id),
 				zap.String("latency", time.Since(start).String()),
 				zap.String("method", req.Method),
@@ -33,7 +34,7 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 				zap.String("uri", req.RequestURI),
 				zap.String("user_agent", req.UserAgent()),
 			}
-			n := res.Status
+			n := status
 			switch {
 			case n >= 500:
 				log.Error("Server error", fields...)

@@ -2,6 +2,7 @@ package ironman
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/buzzxu/ironman/conf"
 	"github.com/buzzxu/ironman/echomw"
@@ -9,10 +10,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 // Server 启动服务
@@ -31,19 +33,14 @@ func Server(e *echo.Echo) {
 		StackSize:         4 << 10,
 	}))
 	e.HTTPErrorHandler = httpErrorHandler
-	//平滑关闭
-	go func() {
-		if err := e.Start(fmt.Sprintf(":%s", conf.ServerConf.Port)); err != nil {
-			logger.Error(err.Error())
-		}
-	}()
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := e.Shutdown(ctx); err != nil {
-		logger.Fatale("Shutdown error", err)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	server := echo.StartConfig{
+		Address:         fmt.Sprintf(":%s", conf.ServerConf.Port),
+		GracefulTimeout: 10 * time.Second,
+	}
+	if err := server.Start(ctx, e); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		logger.Error(err.Error())
 	}
 }
 
@@ -56,43 +53,43 @@ func NewError(code int, key string, msg interface{}) *Error {
 	}
 }
 
-func httpErrorHandler(err error, c echo.Context) {
-	var (
-		code = http.StatusInternalServerError
-		key  = "StatusInternalServerError"
-		msg  interface{}
-	)
-
-	if e, ok := err.(*Error); ok {
-		code = e.Code
-		key = e.Key
-		msg = e.Message
-	} else if e, ok := err.(*echo.HTTPError); ok {
-		code = e.Code
-		key = http.StatusText(code)
-		msg = e.Message
-	} else if c.Echo().Debug {
-		msg = err.Error()
-	} else {
-		key = http.StatusText(code)
-		msg = err.Error()
+func httpErrorHandler(c *echo.Context, err error) {
+	if response, _ := echo.UnwrapResponse(c.Response()); response != nil && response.Committed {
+		return
 	}
-
-	if !c.Response().Committed {
-		if c.Request().Method == echo.HEAD {
-			err := c.NoContent(code)
-			if err != nil {
-				c.Logger().Error(err)
-			}
-		} else {
-			err := c.JSON(code, NewError(code, key, msg))
-			if err != nil {
-				c.Logger().Error(err)
-			}
+	code := http.StatusInternalServerError
+	key := http.StatusText(code)
+	var msg interface{} = err.Error()
+	var appError *Error
+	var httpError *echo.HTTPError
+	switch {
+	case errors.As(err, &appError):
+		code, key, msg = appError.Code, appError.Key, appError.Message
+	case errors.As(err, &httpError):
+		code = httpError.Code
+		key = http.StatusText(code)
+		msg = httpError.Message
+	default:
+		if status := echo.StatusCode(err); status != 0 {
+			code = status
+			key = http.StatusText(code)
+			msg = key
 		}
+	}
+	var writeErr error
+	if c.Request().Method == http.MethodHead {
+		writeErr = c.NoContent(code)
+	} else {
+		writeErr = c.JSON(code, NewError(code, key, msg))
+	}
+	if writeErr != nil {
+		c.Logger().Error("Failed to write error response", "error", writeErr)
 	}
 }
 
 func (e *Error) Error() string {
-	return e.Key + ": " + e.Message.(string)
+	return fmt.Sprintf("%s: %v", e.Key, e.Message)
 }
+
+// StatusCode lets Echo middleware resolve application error status codes.
+func (e *Error) StatusCode() int { return e.Code }

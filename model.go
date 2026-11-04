@@ -4,7 +4,7 @@ type (
 	// User 用户基础信息
 	User struct {
 		ID         int    `json:"id" gorm:"primary_key"`
-		Version    int    `json:"version,omitempty"gorm:"column:_version"`
+		Version    int    `json:"version,omitempty" gorm:"column:_version"`
 		ParentID   int    `json:"parentId,omitempty" gorm:"column:parent_id"`
 		NickName   string `json:"nick_name" gorm:"column:nick_name"`
 		UserName   string `json:"userName,omitempty" gorm:"column:user_name"`

@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	echojwt "github.com/labstack/echo-jwt/v4"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echojwt "github.com/labstack/echo-jwt/v5"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 // 预定义错误类型
@@ -34,7 +34,7 @@ type JWTConfig struct {
 // ErrorConfig 错误处理配置
 type ErrorConfig struct {
 	// 错误处理函数，返回正确的响应
-	ErrorHandler func(c echo.Context, err error) error
+	ErrorHandler func(c *echo.Context, err error) error
 	// 各类错误对应的HTTP状态码
 	ErrorStatusCodes map[string]int
 	// 自定义错误消息
@@ -64,7 +64,7 @@ var DefaultErrorConfig = ErrorConfig{
 }
 
 // defaultErrorHandler 默认错误处理函数
-func defaultErrorHandler(c echo.Context, err error) error {
+func defaultErrorHandler(c *echo.Context, err error) error {
 	var message string
 	var status int
 
@@ -128,7 +128,7 @@ func SetErrorConfig(config ErrorConfig) {
 }
 
 // SetErrorHandler 设置错误处理函数
-func SetErrorHandler(handler func(c echo.Context, err error) error) {
+func SetErrorHandler(handler func(c *echo.Context, err error) error) {
 	DefaultJWTConfig.ErrorConfig.ErrorHandler = handler
 }
 
@@ -144,13 +144,13 @@ func SetErrorMessage(errType error, message string) {
 
 // JwtConfig 设置JWT 配置
 func JwtConfig(skipper middleware.Skipper) echojwt.Config {
-	return JwtConfigWithClaims(skipper, func(c echo.Context) jwt.Claims {
+	return JwtConfigWithClaims(skipper, func(c *echo.Context) jwt.Claims {
 		return NewCustomClaims()
 	})
 }
 
 // JwtConfigWithClaims 设置JWT 配置，并使用自定义的Claims
-func JwtConfigWithClaims(skipper middleware.Skipper, claimsFunc func(c echo.Context) jwt.Claims) echojwt.Config {
+func JwtConfigWithClaims(skipper middleware.Skipper, claimsFunc func(c *echo.Context) jwt.Claims) echojwt.Config {
 	return echojwt.Config{
 		Skipper:       skipper,
 		SigningMethod: DefaultJWTConfig.SigningMethod,
@@ -195,7 +195,7 @@ func GenerateTokenWithExpiration(claims jwt.Claims, expiresIn time.Duration) (st
 }
 
 // ParserToken 解析token
-func ParserToken(c echo.Context) *ironman.Optional {
+func ParserToken(c *echo.Context) *ironman.Optional {
 	// Get the token from the context - it will be placed there by echo-jwt middleware
 	token, ok := c.Get(DefaultJWTConfig.ContextKey).(*jwt.Token)
 	//claims := reflect.ValueOf(DefaultJWTConfig.Claims).Interface().(jwt.Claims)
@@ -208,7 +208,7 @@ func ParserToken(c echo.Context) *ironman.Optional {
 }
 
 // ParserTokenUnverified 解析token但不验证签名
-func ParserTokenUnverified(c echo.Context, name string) (*ironman.Optional, error) {
+func ParserTokenUnverified(c *echo.Context, name string) (*ironman.Optional, error) {
 	auth, err := GetToken(c, name)
 	if err != nil {
 		return nil, err
@@ -233,7 +233,7 @@ func TokenOf(auth string) (*ironman.Optional, error) {
 }
 
 // GetToken 从请求的不同位置获取token
-func GetToken(c echo.Context, name string) (string, error) {
+func GetToken(c *echo.Context, name string) (string, error) {
 	// Check header
 	token := c.Request().Header.Get(name)
 	if token != "" {

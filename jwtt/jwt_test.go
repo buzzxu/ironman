@@ -1,8 +1,8 @@
 package jwtt
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"log"
 	"net/http"
 	"testing"
@@ -19,7 +19,7 @@ func TestSetErrorConfig(t *testing.T) {
 
 	// 创建自定义错误处理配置
 	customErrorConfig := ErrorConfig{
-		ErrorHandler: func(c echo.Context, err error) error {
+		ErrorHandler: func(c *echo.Context, err error) error {
 			return c.JSON(http.StatusUnauthorized, map[string]string{
 				"status":  "error",
 				"code":    "AUTH_FAILED",
@@ -46,7 +46,7 @@ func TestSetErrorConfig(t *testing.T) {
 	SetErrorStatusCode(ErrJWTMissing, http.StatusUnauthorized)
 
 	// 仅自定义错误处理函数
-	SetErrorHandler(func(c echo.Context, err error) error {
+	SetErrorHandler(func(c *echo.Context, err error) error {
 		// 记录日志
 		log.Printf("JWT Authentication Error: %v", err)
 
