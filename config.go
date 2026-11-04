@@ -1,6 +1,6 @@
 package ironman
 
-import "github.com/labstack/echo/v4"
+import "github.com/labstack/echo/v5"
 
 type (
 	// Error 异常结构
@@ -17,7 +17,7 @@ type (
 )
 
 // JSON 输出json
-func JSON(c echo.Context, result *Result) error {
+func JSON(c *echo.Context, result *Result) error {
 	return c.JSON(result.Code, result)
 }
 

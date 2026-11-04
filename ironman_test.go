@@ -1,9 +1,11 @@
+//go:build integration
+
 package ironman
 
 import (
 	"flag"
 	"github.com/buzzxu/ironman/conf"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"runtime"
 	"testing"
 )
